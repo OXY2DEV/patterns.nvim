@@ -1,11 +1,11 @@
-local lua_patterns = {};
+local regex = {};
 
 local spec = require("patterns.spec");
 local utils = require("patterns.utils");
 
-lua_patterns.ns = vim.api.nvim_create_namespace("patterns/lua_patterns");
+regex.ns = vim.api.nvim_create_namespace("patterns/regex");
 
-lua_patterns.tips = {
+regex.tips = {
 	anchor_start = "Only match if the pattern is at the beginning of the string.",
 	anchor_end = "Only match if the pattern is at the end of the string.",
 
@@ -30,30 +30,30 @@ lua_patterns.tips = {
 	end,
 }
 
-lua_patterns.__generic = function (buffer, item)
+regex.__generic = function (buffer, item)
 	---|fS
 
 	---@type integer[] { row_start, col_start, row_end, col_end }
 	local range = item.range;
 
 	---@type integer Indent size
-	local indent = spec.get({ "lua_patterns", "indent_size" }, {
+	local indent = spec.get({ "regex", "indent_size" }, {
 		fallback = 2,
 		eval_args = { buffer, item }
 	});
 	---@type string Indent
-	local indent_marker = spec.get({ "lua_patterns", "indent_marker" }, {
+	local indent_marker = spec.get({ "regex", "indent_marker" }, {
 		fallback = " ",
 		eval_args = { buffer, item }
 	});
 	---@type string? Indent hl
-	local indent_hl = spec.get({ "lua_patterns", "indent_hl" }, {
+	local indent_hl = spec.get({ "regex", "indent_hl" }, {
 		fallback = nil,
 		eval_args = { buffer, item }
 	});
 
 	---@type table Config table.
-	local config = spec.get({ "lua_patterns", item.kind }, {
+	local config = spec.get({ "regex", item.kind }, {
 		fallback = {},
 		eval_args = { buffer, item }
 	});
@@ -84,7 +84,7 @@ lua_patterns.__generic = function (buffer, item)
 		pcall(vim.api.nvim_win_set_cursor, win, { vim.api.nvim_buf_line_count(buffer) - 1, 0 });
 	end
 
-	vim.api.nvim_buf_set_extmark(buffer, lua_patterns.ns, vim.api.nvim_buf_line_count(buffer) - line_count, 0, {
+	vim.api.nvim_buf_set_extmark(buffer, regex.ns, vim.api.nvim_buf_line_count(buffer) - line_count, 0, {
 		invalidate = true, undo_restore = false,
 
 		virt_text_pos = "right_align",
@@ -99,7 +99,7 @@ lua_patterns.__generic = function (buffer, item)
 	---@type integer Window width.
 	local win_w = vim.api.nvim_win_get_width(utils.win_findbuf(buffer));
 	local tip = spec.get({ item.kind }, {
-		source = lua_patterns.tips,
+		source = regex.tips,
 		eval_args = { buffer, item}
 	});
 
@@ -124,7 +124,7 @@ lua_patterns.__generic = function (buffer, item)
 		line_count = line_count + #lines;
 
 		if config.tip_hl then
-			vim.api.nvim_buf_set_extmark(buffer, lua_patterns.ns, vim.api.nvim_buf_line_count(buffer) - line_count + 1, 0, {
+			vim.api.nvim_buf_set_extmark(buffer, regex.ns, vim.api.nvim_buf_line_count(buffer) - line_count + 1, 0, {
 				invalidate = true, undo_restore = false,
 				end_row = vim.api.nvim_buf_line_count(buffer),
 
@@ -138,7 +138,7 @@ lua_patterns.__generic = function (buffer, item)
 
 	for l = start, stop, 1 do
 		if l == start then
-			vim.api.nvim_buf_set_extmark(buffer, lua_patterns.ns, l, 1, {
+			vim.api.nvim_buf_set_extmark(buffer, regex.ns, l, 1, {
 				invalidate = true, undo_restore = false,
 
 				virt_text_pos = "overlay",
@@ -155,7 +155,7 @@ lua_patterns.__generic = function (buffer, item)
 				hl_mode = "combine"
 			});
 		else
-			vim.api.nvim_buf_set_extmark(buffer, lua_patterns.ns, l, 1, {
+			vim.api.nvim_buf_set_extmark(buffer, regex.ns, l, 1, {
 				invalidate = true, undo_restore = false,
 
 				virt_text_pos = "overlay",
@@ -180,11 +180,11 @@ lua_patterns.__generic = function (buffer, item)
 	---|fE
 end
 
-lua_patterns.render = function (buffer, content)
-	vim.api.nvim_buf_clear_namespace(buffer, lua_patterns.ns, 0, -1);
+regex.render = function (buffer, content)
+	vim.api.nvim_buf_clear_namespace(buffer, regex.ns, 0, -1);
 
 	for _, entry in ipairs(content) do
-		local can_render, error = pcall(lua_patterns.__generic, buffer, entry);
+		local can_render, error = pcall(regex.__generic, buffer, entry);
 
 		if can_render == false then
 			vim.print(error)
@@ -192,4 +192,4 @@ lua_patterns.render = function (buffer, content)
 	end
 end
 
-return lua_patterns;
+return regex;

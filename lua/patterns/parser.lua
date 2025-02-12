@@ -3,6 +3,7 @@ local spec = require("patterns.spec");
 local utils = require("patterns.utils");
 
 parser.lua_patterns = require("patterns.parsers.lua_patterns");
+parser.regex = require("patterns.parsers.regex");
 
 parser.content = {};
 

@@ -17,9 +17,12 @@ patterns.viewer_setup = function ()
 	end
 
 	---@type table
-	local input = spec.get({ "windows", "input" }, { fallback = {} });
-	---@type table
-	local preview = spec.get({ "windows", "preview" }, { fallback = {} });
+	local input = spec.get({ "windows", "input" }, {
+		fallback = {},
+		args = {
+			patterns.input_buf or -1, patterns.input_win or -1, patterns.preview_buf or -1, patterns.preview_win or -1
+		}
+	});
 
 	if type(patterns.input_win) ~= "number" or vim.api.nvim_win_is_valid(patterns.input_win) == false then
 		patterns.input_win = vim.api.nvim_open_win(patterns.input_buf, true, vim.tbl_deep_extend(
@@ -43,11 +46,20 @@ patterns.viewer_setup = function ()
 		patterns.preview_buf = vim.api.nvim_create_buf(false, true);
 	end
 
+	---@type table
+	local preview = spec.get({ "windows", "preview" }, {
+		fallback = {},
+		args = { patterns.input_buf, patterns.input_win, patterns.preview_buf, patterns.preview_win }
+	});
+
 	if type(patterns.preview_win) ~= "number" or vim.api.nvim_win_is_valid(patterns.preview_win) == false then
 		patterns.preview_win = vim.api.nvim_open_win(patterns.preview_buf, false, preview)
 	else
 		vim.api.nvim_win_set_config(patterns.preview_win, preview);
 	end
+
+	vim.wo[patterns.preview_win].cursorline = false;
+	vim.wo[patterns.preview_win].scrolloff = math.floor(preview.height / 2);
 
 	vim.api.nvim_create_autocmd( "VimResized", {
 		group = patterns.au,
@@ -55,6 +67,30 @@ patterns.viewer_setup = function ()
 			patterns.viewer_setup();
 		end
 	});
+
+	vim.api.nvim_create_autocmd({
+		"WinClosed"
+	}, {
+		pattern = { tostring(patterns.input_win), tostring(patterns.preview_win) },
+
+		callback = function ()
+			patterns.viewer_close();
+		end
+	});
+
+	-- vim.api.nvim_create_autocmd({
+	-- 	"BufEnter"
+	-- }, {
+	-- 	group = patterns.au,
+	--
+	-- 	callback = function (event)
+	-- 		local buf = tonumber(event.buf);
+	--
+	-- 		if (patterns.preview_win and patterns.input_win) and buf ~= patterns.preview_buf and buf ~= patterns.input_buf then
+	-- 			patterns.viewer_close();
+	-- 		end
+	-- 	end
+	-- });
 end
 
 patterns.render = function ()
@@ -63,6 +99,13 @@ patterns.render = function ()
 
 	vim.api.nvim_buf_set_lines(patterns.preview_buf, 0, -1, false, {});
 	require("patterns.renderer").render(patterns.preview_buf, content);
+end
+
+patterns.viewer_close = function ()
+	patterns.au = vim.api.nvim_create_augroup("patterns", { clear = true });
+
+	pcall(vim.api.nvim_win_close, patterns.preview_win, true);
+	pcall(vim.api.nvim_win_close, patterns.input_win, true);
 end
 
 
@@ -89,7 +132,10 @@ patterns.actions = {
 
 		local typer = vim.uv.new_timer();
 
-		vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+		vim.api.nvim_create_autocmd({
+			"TextChanged", "TextChangedI",
+			"CursorMoved", "CursorMovedI"
+		}, {
 			buffer = patterns.input_buf,
 
 			callback = function ()

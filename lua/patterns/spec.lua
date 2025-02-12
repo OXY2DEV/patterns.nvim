@@ -5,16 +5,14 @@ spec.default = {
 	luap_filetypes = { "lua" },
 
 	windows = {
-		input = function ()
+		input = function (_, _, buf)
 			local w = math.floor(
 				math.max(vim.o.columns * 0.5, 10)
 			);
 			local h = math.ceil(vim.o.lines * 0.5);
 
-			local pt = package.loaded["patterns"];
-
-			if (pt and pt.preview_buf) and vim.api.nvim_buf_is_valid(pt.preview_buf) then
-				local line_count = vim.api.nvim_buf_line_count(pt.preview_buf);
+			if buf and vim.api.nvim_buf_is_valid(buf) then
+				local line_count = vim.api.nvim_buf_line_count(buf);
 
 				if line_count + 5 < h then
 					h = line_count + 5;
@@ -51,15 +49,14 @@ spec.default = {
 				style = "minimal",
 			};
 		end,
-		preview = function ()
+		preview = function (_, _, buf)
 			local w = math.floor(
 				math.max(vim.o.columns * 0.5, 10)
 			);
 			local h = math.ceil(vim.o.lines * 0.5);
-			local pt = package.loaded["patterns"];
 
-			if (pt and pt.preview_buf) and vim.api.nvim_buf_is_valid(pt.preview_buf) then
-				local line_count = vim.api.nvim_buf_line_count(pt.preview_buf);
+			if buf and vim.api.nvim_buf_is_valid(buf) then
+				local line_count = vim.api.nvim_buf_line_count(buf);
 
 				if line_count + 5 < h then
 					h = line_count + 5;
@@ -309,6 +306,431 @@ spec.default = {
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
 		},
+	},
+
+	regex = {
+		indent_size = 4,
+		indent_marker = "│",
+		indent_hl = "Comment",
+
+		pattern = {
+			text = "󰛪 Pattern",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette0Bg",
+			hl = "PatternsPalette0"
+		},
+
+		alternation = {
+			text = "󰋰 Alternative pattern(s)",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette6Bg",
+			hl = "PatternsPalette6"
+		},
+
+		term = {
+			text = function (_, item)
+				return string.format("󰊲 Regex term(#%d)", item.id or -1);
+			end,
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette6Bg",
+			hl = "PatternsPalette6"
+		},
+
+		----------------------------------------
+
+		start_assertion = {
+			text = "󰀱 From start",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		end_assertion = {
+			text = "󰀱 To end",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		boundary_assertion = {
+			text = "󰕤 Match as a word",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		non_boundary_assertion = {
+			text = "󰕛 Match as part of a word",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		lookaround_assertion = {
+			text = function (_, item)
+				if string.match(item.text, "^%(%?%<") then
+					return "󰡭 Look behind";
+				else
+					return "󰡮 Look ahead";
+				end
+			end,
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		----------------------------------------
+
+		quantifier_count = {
+			text = function (_, item)
+				if string.match(item.text, "^%d+$") then
+					return string.format(" Repeats exactly %s times", item.text);
+				elseif string.match(item.text, "^%d+,$") then
+					return string.format(
+						" Repeats at least %s times",
+						string.match(item.text, "^(%d+)")
+					);
+				elseif string.match(item.text, "^,%d+$") then
+					return string.format(
+						" Repeats at most %s times",
+						string.match(item.text, "^,(%d+)$")
+					);
+				else
+					return string.format(
+						" Repeats between %s & %s times",
+						string.match(item.text, "^(%d+),"),
+						string.match(item.text, "^%d+,(%d+)$")
+					);
+				end
+			end,
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette7Bg",
+			hl = "PatternsPalette7"
+		},
+
+		quantifier_optional = {
+			text = " Repeats zero or one time",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette7Bg",
+			hl = "PatternsPalette7"
+		},
+
+		quantifier_plus = {
+			text = " Repeats one or more times",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette7Bg",
+			hl = "PatternsPalette7"
+		},
+
+		quantifier_star = {
+			text = " Repeats zero or more times",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette7Bg",
+			hl = "PatternsPalette7"
+		},
+
+		----------------------------------------
+
+		pattern_character = {
+			text = "󱄽 Character:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette2Bg",
+			hl = "PatternsPalette2"
+		},
+
+		class_character = {
+			text = "󱄽 Character:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette2Bg",
+			hl = "PatternsPalette2"
+		},
+
+		any_character = {
+			text = " Any character",
+
+			show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
+		},
+
+		decimal_escape = {
+			text = "󰩈 Decimal escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		character_class_escape = {
+			text = "󰩈 Character class escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		unicode_character_escape = {
+			text = "󰩈 Unicode character escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		unicode_property_value = {
+			text = "󰗊 Unicode property value:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette6Bg",
+			hl = "PatternsPalette6"
+		},
+
+		control_escape = {
+			text = "󰁨 Control character escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		control_letter_escape = {
+			text = "󰁨 Control letter escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		identity_escape = {
+			text = "󰩈 Identity escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		backreference_escape = {
+			text = "󰒻 Backreference escape:",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette1Bg",
+			hl = "PatternsPalette1"
+		},
+
+		----------------------------------------
+
+		unicode_property_value_expression = {
+			text = "󰁀 Unicode property value expression",
+			show_range = function (_, item)
+				return item.current == true;
+			end,
+
+			-- show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette0Bg",
+			hl = "PatternsPalette0"
+		},
+
+		----------------------------------------
+
+		character_class = {
+			text = "󰏗 Character class",
+
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette4Bg",
+			hl = "PatternsPalette4"
+		},
+
+		posix_character_class = {
+			text = "󰏗 POSIX Character class:",
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
+		},
+
+		named_group_backreference = {
+			text = "󰒻 Named backreference:",
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
+		},
+
+		capturing_group = {
+			text = function (_, item)
+				if type(item.id) == "string" then
+					return string.format("󱉶 Capture group(#%s)", item.id or "???");
+				else
+					return string.format("󱉶 Capture group(#%d)", item.id or -1);
+				end
+			end,
+
+			-- show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
+		},
+
+		non_capturing_group = {
+			text = function (_, item)
+				return string.format("󰒉 Non-capture group(#%d)", item.id or -1);
+			end,
+
+			-- show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
+		},
+
+		flags_group = {
+			text = "󰂖 Flags group",
+
+			-- show_content = false,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette2Bg",
+			hl = "PatternsPalette2"
+		},
+
+		flags = {
+			text = "󰈻 Flag(s):",
+
+			show_content = true,
+			range_hl = "Comment",
+			indent_hl = "Comment",
+
+			tip_hl = "PatternsPalette2Bg",
+			hl = "PatternsPalette2"
+		},
 	}
 };
 
@@ -391,7 +813,7 @@ spec.get = function (keys, opts)
 	end
 
 	for k, key in ipairs(keys) do
-		val = to_static(val[key], val.args);
+		val = to_static(val[key], get_arg(k));
 
 		if k ~= #keys then
 			if type(val) ~= "table" then

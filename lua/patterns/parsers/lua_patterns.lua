@@ -229,7 +229,8 @@ lua_patterns.escaped_character = function (buffer, node)
 		return;
 	end
 
-	text = vim.inspect(text):gsub('^%"\n', "");
+	text = text:match("^%%(.)");
+	text = vim.inspect(text);
 
 	return {
 		kind = "escaped_character",
