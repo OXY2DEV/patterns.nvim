@@ -13,8 +13,16 @@ regex.non_capture_id = 0;
 --- Root node
 ---@param buffer integer
 ---@param node table
----@return table
+---@return table | nil
 regex.pattern = function (buffer, node)
+	if node:parent() then
+		--- Do not show this node
+		--- when it appears inside another
+		--- node.
+		regex.level = regex.level - 1;
+		return;
+	end
+
 	return {
 		kind = "pattern",
 		current = node:equal(regex.current),
@@ -40,17 +48,30 @@ end
 
 ---@param buffer integer
 ---@param node table
----@return table
+---@return nil | table
 regex.term = function (buffer, node)
-	regex.term_id = regex.term_id + 1;
-	return {
-		kind = "term",
-		current = node:equal(regex.current),
-		id = regex.term_id,
+	--- This is most likely an internal abstraction
+	--- and not a syntax.
+	---
+	--- Reduce the level of child nodes.
 
-		text = vim.treesitter.get_node_text(node, buffer),
-		range = { node:range() }
-	};
+	--- List of parent node types where this node
+	--- should be visible.
+	---@type string[]
+	local possible_parents = { "alternation" };
+
+	if vim.list_contains(possible_parents, node:parent():type()) then
+		return {
+			kind = "term",
+			current = node:equal(regex.current),
+			id = regex.term_id,
+
+			text = vim.treesitter.get_node_text(node, buffer),
+			range = { node:range() }
+		};
+	else
+		regex.level = regex.level - 1;
+	end
 end
 
 ------------------------------------------------------------------------------
@@ -178,7 +199,7 @@ regex.pattern_character = function (buffer, node)
 		kind = "pattern_character",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(vim.treesitter.get_node_text(node, buffer)),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -191,7 +212,7 @@ regex.class_character = function (buffer, node)
 		kind = "class_character",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(vim.treesitter.get_node_text(node, buffer)),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -213,14 +234,11 @@ end
 ---@param node table
 ---@return table
 regex.decimal_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer):match("^\\(.)");
-
 	return {
 		kind = "decimal_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -229,14 +247,11 @@ end
 ---@param node table
 ---@return table
 regex.character_class_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer):match("^\\(.)");
-
 	return {
 		kind = "character_class_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -245,14 +260,11 @@ end
 ---@param node table
 ---@return table
 regex.unicode_property_value = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "unicode_property_value",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -261,14 +273,11 @@ end
 ---@param node table
 ---@return table
 regex.unicode_character_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer):match("^\\u(.+)");
-
 	return {
 		kind = "unicode_character_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -277,14 +286,11 @@ end
 ---@param node table
 ---@return table
 regex.control_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "control_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -293,14 +299,11 @@ end
 ---@param node table
 ---@return table
 regex.control_letter_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "control_letter_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -309,14 +312,11 @@ end
 ---@param node table
 ---@return table
 regex.identity_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "identity_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -325,14 +325,11 @@ end
 ---@param node table
 ---@return table
 regex.backreference_escape = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "backreference_escape",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -343,14 +340,11 @@ end
 ---@param node table
 ---@return table
 regex.unicode_property_value_expression = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer);
-
 	return {
 		kind = "unicode_property_value_expression",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -374,14 +368,11 @@ end
 ---@param node table
 ---@return table
 regex.posix_character_class = function (buffer, node)
-	---@type string Character class name
-	local text = vim.treesitter.get_node_text(node, buffer):match("^%[%:(.-)%:%]");
-
 	return {
 		kind = "posix_character_class",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -390,14 +381,11 @@ end
 ---@param node table
 ---@return table
 regex.named_group_backreference = function (buffer, node)
-	---@type string Decimal
-	local text = vim.treesitter.get_node_text(node, buffer):match("^%(%?P=(.-)%)");
-
 	return {
 		kind = "named_group_backreference",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(text),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -475,7 +463,7 @@ regex.flags = function (buffer, node)
 		kind = "flags",
 		current = node:equal(regex.current),
 
-		text = vim.inspect(vim.treesitter.get_node_text(node, buffer)),
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
