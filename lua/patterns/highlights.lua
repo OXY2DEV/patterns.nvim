@@ -2,7 +2,6 @@
 --- for `patterns.nvim`.
 --- 
 local highlights = {};
-local health = require("patterns.health");
 local utils = require("patterns.utils");
 
 local lerp = utils.lerp;
@@ -466,15 +465,10 @@ highlights.created = {};
 ---@param name string
 ---@param value table
 highlights.set_hl = function (name, value)
-	local success, err = pcall(vim.api.nvim_set_hl, 0, name, value);
+	local success, _ = pcall(vim.api.nvim_set_hl, 0, name, value);
 
 	if success == false then
-		health.notify("hl", {
-			group = name,
-			value = value,
-
-			message = err
-		});
+		vim.notify("Failed to set highlight group: " .. name, vim.log.levels.WARN, {});
 	else
 		table.insert(highlights.created, name);
 	end
