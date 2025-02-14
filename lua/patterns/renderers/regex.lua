@@ -203,10 +203,6 @@ regex.__generic = function (buffer, item)
 	vim.api.nvim_buf_set_lines(buffer, -1, -1, false, {
 		table.concat({
 			" ",
-			string.rep(
-				" ",
-				indent * item.level
-			),
 
 			config.text or item.text,
 			config.show_content == true and " " .. item.text or ""
@@ -246,10 +242,6 @@ regex.__generic = function (buffer, item)
 			vim.api.nvim_buf_set_lines(buffer, -1, -1, false, {
 				table.concat({
 					" ",
-					string.rep(
-						" ",
-						(indent * item.level) + (config.tip_offset or 2)
-					),
 					r_wh
 				})
 			});
@@ -275,7 +267,7 @@ regex.__generic = function (buffer, item)
 			vim.api.nvim_buf_set_extmark(buffer, regex.ns, l, 1, {
 				invalidate = true, undo_restore = false,
 
-				virt_text_pos = "overlay",
+				virt_text_pos = "inline",
 				virt_text = {
 					{
 						string.rep(
@@ -292,7 +284,7 @@ regex.__generic = function (buffer, item)
 			vim.api.nvim_buf_set_extmark(buffer, regex.ns, l, 1, {
 				invalidate = true, undo_restore = false,
 
-				virt_text_pos = "overlay",
+				virt_text_pos = "inline",
 				virt_text = {
 					{
 						table.concat({
@@ -311,19 +303,25 @@ regex.__generic = function (buffer, item)
 		end
 	end
 
+	return item.current and vim.api.nvim_buf_line_count(buffer) - line_count or nil;
 	---|fE
 end
 
 regex.render = function (buffer, content)
 	vim.api.nvim_buf_clear_namespace(buffer, regex.ns, 0, -1);
+	local current_line;
 
 	for _, entry in ipairs(content) do
-		local can_render, error = pcall(regex.__generic, buffer, entry);
+		local can_render, data = pcall(regex.__generic, buffer, entry);
 
 		if can_render == false then
-			vim.print(error)
+			vim.print(data);
+		elseif entry.current then
+			current_line = data;
 		end
 	end
+
+	return current_line;
 end
 
 return regex;
