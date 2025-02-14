@@ -5,119 +5,19 @@ spec.default = {
 	luap_filetypes = { "lua" },
 
 	windows = {
-		input = function (_, _, buf)
-			local w = math.floor(
-				math.max(vim.o.columns * 0.5, 10)
-			);
-			local h = math.ceil(vim.o.lines * 0.5);
-
-			if buf and vim.api.nvim_buf_is_valid(buf) then
-				local line_count = vim.api.nvim_buf_line_count(buf);
-
-				if line_count + 5 < h then
-					h = line_count + 5;
-				end
-			end
-
-			local row = math.floor((vim.o.lines - vim.o.cmdheight - h) / 2);
-			local col = math.floor((vim.o.columns - w) / 2);
-
-			return {
-				relative = "editor",
-
-				width = w,
-				height = 1,
-
-				row = row,
-				col = col,
-
-				title = {
-					{ " 󰗊 Pattern ", "PatternsPalette0" }
-				},
-				title_pos = "right",
-
-				border = {
-					{ "╭", "PatternsInputBorder" },
-					{ "─", "PatternsInputBorder" },
-					{ "╮", "PatternsInputBorder" },
-					{ "│", "PatternsInputBorder" },
-					{ "╯", "PatternsInputBorder" },
-					{ "─", "PatternsInputBorder" },
-					{ "╰", "PatternsInputBorder" },
-					{ "│", "PatternsInputBorder" },
-				},
-				style = "minimal",
-			};
-		end,
-		preview = function (_, _, buf)
-			local w = math.floor(
-				math.max(vim.o.columns * 0.5, 10)
-			);
-			local h = math.ceil(vim.o.lines * 0.5);
-
-			if buf and vim.api.nvim_buf_is_valid(buf) then
-				local line_count = vim.api.nvim_buf_line_count(buf);
-
-				if line_count + 5 < h then
-					h = line_count + 5;
-				end
-			end
-
-			local row = math.floor((vim.o.lines - vim.o.cmdheight - h) / 2);
-			local col = math.floor((vim.o.columns - w) / 2);
-
-			return {
-				relative = "editor",
-
-				width = w,
-				height = h - 5,
-
-				row = row + 3,
-				col = col,
-
-				title = {
-					{ " 󰈈 Preview ", "PatternsPalette7" }
-				},
-				title_pos = "right",
-
-				footer = {
-					{ "─", "PatternsPreviewBorder" },
-					{ " " },
-					{ "[J]", "PatternsPalette4" },
-					{ ": Down, ", "Comment" },
-					{ "[L]", "PatternsPalette4" },
-					{ ": Up", "Comment" },
-					{ " " },
-					{ "─", "PatternsPreviewBorder" },
-				},
-				footer_pos = "right",
-
-				border = {
-					{ "╭", "PatternsPreviewBorder" },
-					{ "─", "PatternsPreviewBorder" },
-					{ "╮", "PatternsPreviewBorder" },
-					{ "│", "PatternsPreviewBorder" },
-					{ "╯", "PatternsPreviewBorder" },
-					{ "─", "PatternsPreviewBorder" },
-					{ "╰", "PatternsPreviewBorder" },
-					{ "│", "PatternsPreviewBorder" },
-				},
-				style = "minimal"
-			};
-		end
 	},
 
 	lua_patterns = {
-		indent_size = 4,
-		indent_marker = "│",
-		indent_hl = "Comment",
+		indent_size = 2,
+		indent_marker = "╎",
+		indent_hl = "PatternsInputBorder",
 
 		pattern = {
 			text = "󰛪 Pattern",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0"
@@ -129,8 +29,8 @@ spec.default = {
 			text = "󰀱 From start",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -140,8 +40,8 @@ spec.default = {
 			text = "󰀱 To end",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -153,8 +53,8 @@ spec.default = {
 			text = " Repeats zero or more times(non-greedily)",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -164,8 +64,8 @@ spec.default = {
 			text = " Repeats zero or one time",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -175,8 +75,8 @@ spec.default = {
 			text = " Repeats one or more times",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -186,8 +86,8 @@ spec.default = {
 			text = " Repeats zero or more times",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -197,13 +97,10 @@ spec.default = {
 
 		character = {
 			text = "󱄽 Character:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -213,8 +110,8 @@ spec.default = {
 			text = " Any character",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -222,13 +119,10 @@ spec.default = {
 
 		escape_sequence = {
 			text = "󰩈 Escape sequence:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -236,13 +130,10 @@ spec.default = {
 
 		escaped_character = {
 			text = "󰩈 Escaped character:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -254,8 +145,8 @@ spec.default = {
 			text = "󰀁 Character set:",
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -265,8 +156,8 @@ spec.default = {
 			text = "󰆦 Set content:",
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -278,8 +169,8 @@ spec.default = {
 			end,
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -289,8 +180,8 @@ spec.default = {
 			text = "󰊱 Character range:",
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -300,8 +191,8 @@ spec.default = {
 			text = "󰏗 Character class:",
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
@@ -309,16 +200,16 @@ spec.default = {
 	},
 
 	regex = {
-		indent_size = 4,
+		indent_size = 2,
 		indent_marker = "│",
-		indent_hl = "Comment",
+		indent_hl = "PatternsInputBorder",
 
 		pattern = {
 			text = "󰛪 Pattern",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0"
@@ -328,8 +219,8 @@ spec.default = {
 			text = "󰋰 Alternative pattern(s)",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -341,8 +232,8 @@ spec.default = {
 			end,
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -354,8 +245,8 @@ spec.default = {
 			text = "󰀱 From start",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -365,8 +256,8 @@ spec.default = {
 			text = "󰀱 To end",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -376,8 +267,8 @@ spec.default = {
 			text = "󰕤 Match as a word",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -387,8 +278,8 @@ spec.default = {
 			text = "󰕛 Match as part of a word",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -404,8 +295,8 @@ spec.default = {
 			end,
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -437,8 +328,8 @@ spec.default = {
 			end,
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -448,8 +339,8 @@ spec.default = {
 			text = " Repeats zero or one time",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -459,8 +350,8 @@ spec.default = {
 			text = " Repeats one or more times",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -470,8 +361,8 @@ spec.default = {
 			text = " Repeats zero or more times",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -481,13 +372,10 @@ spec.default = {
 
 		pattern_character = {
 			text = "󱄽 Character:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -495,13 +383,10 @@ spec.default = {
 
 		class_character = {
 			text = "󱄽 Character:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -511,8 +396,8 @@ spec.default = {
 			text = " Any character",
 
 			show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -520,13 +405,10 @@ spec.default = {
 
 		decimal_escape = {
 			text = "󰩈 Decimal escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -534,13 +416,10 @@ spec.default = {
 
 		character_class_escape = {
 			text = "󰩈 Character class escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -548,13 +427,10 @@ spec.default = {
 
 		unicode_character_escape = {
 			text = "󰩈 Unicode character escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -562,13 +438,10 @@ spec.default = {
 
 		unicode_property_value = {
 			text = "󰗊 Unicode property value:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -576,13 +449,10 @@ spec.default = {
 
 		control_escape = {
 			text = "󰁨 Control character escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -590,13 +460,10 @@ spec.default = {
 
 		control_letter_escape = {
 			text = "󰁨 Control letter escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -604,13 +471,10 @@ spec.default = {
 
 		identity_escape = {
 			text = "󰩈 Identity escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -618,13 +482,10 @@ spec.default = {
 
 		backreference_escape = {
 			text = "󰒻 Backreference escape:",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -634,13 +495,10 @@ spec.default = {
 
 		unicode_property_value_expression = {
 			text = "󰁀 Unicode property value expression",
-			show_range = function (_, item)
-				return item.current == true;
-			end,
 
 			-- show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0"
@@ -651,8 +509,8 @@ spec.default = {
 		character_class = {
 			text = "󰏗 Character class",
 
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
@@ -662,8 +520,8 @@ spec.default = {
 			text = "󰏗 POSIX Character class:",
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -673,8 +531,8 @@ spec.default = {
 			text = "󰒻 Named backreference:",
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -690,8 +548,8 @@ spec.default = {
 			end,
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -703,8 +561,8 @@ spec.default = {
 			end,
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -714,8 +572,8 @@ spec.default = {
 			text = "󰂖 Flags group",
 
 			-- show_content = false,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -725,8 +583,8 @@ spec.default = {
 			text = "󰈻 Flag(s):",
 
 			show_content = true,
-			range_hl = "Comment",
-			indent_hl = "Comment",
+			range_hl = "PatternsInputBorder",
+			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
