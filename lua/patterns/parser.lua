@@ -23,7 +23,6 @@ parser.parse = function (buffer)
 		end
 
 		if parser[language] then
-			vim.print(language)
 			parser.content[language] = vim.list_extend(
 				parser.content[language],
 				parser[language].parse(buffer, TSTree:root())
