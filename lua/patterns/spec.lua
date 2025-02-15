@@ -5,6 +5,30 @@ spec.default = {
 	luap_filetypes = { "lua" },
 
 	windows = {
+		hover = function (q1, q2)
+			local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" };
+
+			if q2 == "top" then
+				if q1 == "left" then
+					border[5] = "┤";
+				elseif q1 == "right" then
+					border[7] = "├";
+				end
+			elseif q2 == "bottom" then
+				if q1 == "left" then
+					border[3] = "┤";
+				elseif q1 == "right" then
+					border[1] = "├";
+				end
+			end
+
+			return {
+				width = math.floor(vim.o.columns * 0.6),
+				height = math.floor(vim.o.lines * 0.5),
+
+				border = border
+			}
+		end
 	},
 
 	lua_patterns = {
