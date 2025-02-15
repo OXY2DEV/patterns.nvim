@@ -2,96 +2,130 @@ local patterns = {};
 local spec = require("patterns.spec");
 local nodes = require("patterns.nodes");
 
---- Get which quadrant to open the window on.
----
---- ```txt
----    top, left ↑ top, right
----            ← █ →
---- bottom, left ↓ bottom, right
---- ```
----@param w integer
----@param h integer
----@return [ "left" | "right" | "center", "top" | "bottom" | "center" ]
-local function get_quadrant (w, h)
-	---+${lua}
-
-	---@type integer
-	local window = vim.api.nvim_get_current_win();
-	---@type [ integer, integer ]
-	local src_c  = vim.api.nvim_win_get_cursor(window);
-
-	--- (Terminal) Screen position.
-	---@class screen.pos
-	---
-	---@field row integer Screen row.
-	---@field col integer First screen column.
-	---@field endcol integer Last screen column.
-	---
-	---@field curscol integer Cursor screen column.
-	local scr_p = vim.fn.screenpos(window, src_c[1], src_c[2]);
-
-	---@type integer, integer Vim's width & height.
-	local vW, vH = vim.o.columns, vim.o.lines - (vim.o.cmdheight or 0);
-	---@type "left" | "right", "top" | "bottom"
-	local x, y;
-
-	if scr_p.curscol - w <= 0 then
-		--- Not enough spaces on `left`.
-		if scr_p.curscol + w >= vW then
-			--- Not enough space on `right`.
-			return { "center", "center" };
-		else
-			--- Enough spaces on `right`.
-			x = "right";
-		end
-	else
-		--- Enough space on `left`.
-		x = "left";
-	end
-
-	if scr_p.row + h >= vH then
-		--- Not enough spaces on `top`.
-		if scr_p.row - h <= 0 then
-			--- Not enough spaces on `bottom`.
-			return { "center", "center" };
-		else
-			y = "top";
-		end
-	else
-		y = "bottom";
-	end
-
-	return { x, y }
-	---_
-end
+local hover = require("patterns.hover");
 
 --- Renders stuff to the preview buffer
 patterns.render = function (src_buf, prev_buf)
 	---@type { [string]: table[] } The parsed content.
 	local content = require("patterns.parser").parse(src_buf);
 
+	vim.bo[prev_buf].modifiable = true;
+
 	vim.api.nvim_buf_set_lines(prev_buf, 0, -1, false, {});
 	return require("patterns.renderer").render(prev_buf, content);
 end
 
-patterns.viewer_close = function ()
-	patterns.au = vim.api.nvim_create_augroup("patterns", { clear = true });
+--- Renders stuff to the preview buffer
+patterns.clear = function (prev_buf)
+	vim.bo[prev_buf].modifiable = true;
 
-	pcall(vim.api.nvim_win_close, patterns.preview_win, true);
-	pcall(vim.api.nvim_win_close, patterns.input_win, true);
+	vim.api.nvim_buf_set_lines(prev_buf, 0, -1, false, {});
+	return require("patterns.renderer").clear(prev_buf);
 end
 
+patterns.match = function ()
+	if not patterns.input_buf or vim.api.nvim_buf_is_valid(patterns.input_buf) == false then
+		return;
+	elseif not patterns.preview_buf or vim.api.nvim_buf_is_valid(patterns.preview_buf) == false then
+		return;
+	elseif patterns.explain_mode ~= 2 then
+		return;
+	end
+
+	vim.api.nvim_buf_clear_namespace(patterns.preview_buf, patterns.ns, 0, -1);
+
+	local input = table.concat(vim.api.nvim_buf_get_lines(patterns.input_buf, 0, -1, false), "\n");
+
+	if input == "" then
+		return;
+	end
+
+	for l, line in ipairs(vim.api.nvim_buf_get_lines(patterns.preview_buf, 0, -1, false)) do
+		if string.match(line, "^%s*$") then
+			goto continue;
+		end
+
+		local can_match = pcall(string.match, line, input);
+		local matches = {};
+
+		local _line = line;
+		local offset = 0;
+
+		for match in line:gmatch(input) do
+			local from, to = string.find(_line, match, 1, true );
+			_line = _line:gsub(match, "", 1);
+
+			vim.print(match)
+
+			table.insert(matches, {
+				match,
+				{ from, to }
+			});
+
+			vim.api.nvim_buf_set_extmark(patterns.preview_buf, patterns.ns, l - 1, (from + offset) - 1, {
+				invalidate = true, undo_restore = false,
+				end_col = to + offset,
+
+				hl_group = "DiagnosticOk"
+			});
+
+			offset = offset + #match;
+		end
+
+		vim.api.nvim_buf_set_extmark(patterns.preview_buf, patterns.ns, l - 1, 0, {
+			invalidate = true, undo_restore = false,
+
+			virt_text_pos = "right_align",
+			virt_text = (can_match and #matches > 0) and {
+				{ "󰄲 ", "DiagnosticOk" }
+			} or {
+				{ "󰄮 ", "DiagnosticError" }
+			}
+		});
+
+	    ::continue::
+	end
+end
+
+---@type integer Input buffer.
 patterns.input_buf = nil;
+---@type integer Input window.
 patterns.input_win = nil
 
+---@type integer Input buffer.
+patterns.preview_buf = nil;
+---@type integer Input window.
+patterns.preview_win = nil
+
+---@type
+---| 1 Explain mode.
+---| 2 Match mode.
+patterns.explain_mode = 1;
+
+patterns.__explain_lines = nil;
+patterns.__explain_pos = nil;
+
+patterns.ns = vim.api.nvim_create_namespace("patterns");
+
+---@type integer Hover buffer.
 patterns.hover_buf = nil;
+---@type integer Hover window.
 patterns.hover_win = nil
 
+---@type integer Autocmd group for the hover window.
 patterns.hover_au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
 
+---@type integer Autocmd group for the explain window.
+patterns.explain_au = vim.api.nvim_create_augroup("patterns.explain", { clear = true });
+
+--- Sets up all the buffers.
 patterns.__set_bufs = function ()
 	if not patterns.input_buf or vim.api.nvim_buf_is_valid(patterns.input_buf) then
 		patterns.input_buf = vim.api.nvim_create_buf(false, true);
+	end
+
+	if not patterns.preview_buf or vim.api.nvim_buf_is_valid(patterns.preview_buf) then
+		patterns.preview_buf = vim.api.nvim_create_buf(false, true);
 	end
 
 	if not patterns.hover_buf or vim.api.nvim_buf_is_valid(patterns.hover_buf) then
@@ -99,160 +133,254 @@ patterns.__set_bufs = function ()
 	end
 end
 
-patterns.hover = function (ft, text, cursor_pos)
-	---|fS "Prepare buffers."
+patterns.update_explain = function ()
+	---|fS
 
-	patterns.__set_bufs();
+	local input_config = spec.get({ "windows", "input" }, { fallback = {
+		width = math.floor(vim.o.columns * 0.5), height = 1
+	}});
 
-	if patterns.hover_win and vim.api.nvim_win_is_valid(patterns.hover_win) then
-		vim.api.nvim_set_current_win(patterns.hover_win);
-		return;
-	end
+	local preview_config = spec.get({ "windows", "preview" }, { fallback = {
+		width = math.floor(vim.o.columns * 0.5), height = 15
+	}});
 
-	---|fE
+	if not patterns.input_win or vim.api.nvim_win_is_valid(patterns.input_win) == false then
+		patterns.input_win = vim.api.nvim_open_win(patterns.input_buf, true, vim.tbl_extend("force", input_config, {
+			relative = "editor",
 
-	local function closs_hover()
-		pcall(vim.api.nvim_win_close, patterns.hover_win, true);
-		patterns.hover_au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
-	end
+			row = math.floor((vim.o.lines - (input_config.height + preview_config.height + 4)) / 2),
+			col = math.floor((vim.o.columns - preview_config.width) / 2),
 
-	vim.api.nvim_create_autocmd({ "CursorMoved" }, {
-		group = patterns.hover_au,
-		callback = function ()
-			local win = vim.api.nvim_get_current_win();
+			title_pos = "right",
+			title = vim.bo[patterns.input_buf].ft == "LuaPatterns" and {
+				{ " 󰽀 Lua patterns ", "PatternsPalette0" }
+			} or {
+				{ "  Regex ", "PatternsPalette0" }
+			},
 
-			if win ~= patterns.hover_win then
-				closs_hover();
-			end
-		end
-	})
-
-	---@type table Hover window config.
-	local hover_spec = spec.get({ "windows", "hover" }, {
-		fallback = {
-			width = math.ceil(vim.o.columns * 0.4), height = math.ceil(vim.o.lines * 0.5),
-
-			border = "rounded"
-		}
-	});
-
-	---|fS "Initial render"
-
-	patterns.hover_win = vim.api.nvim_open_win(patterns.hover_buf, false, {
-		relative = "editor",
-
-		row = 1, col = 1,
-		width = hover_spec.width, height = hover_spec.height
-	});
-
-	vim.bo[patterns.hover_buf].ft = ft;
-	vim.bo[patterns.hover_buf].modifiable = true;
-
-	vim.api.nvim_buf_set_lines(patterns.hover_buf, 0, -1, false, text);
-	pcall(vim.api.nvim_win_set_cursor, patterns.hover_win, cursor_pos);
-
-	---@type integer Cursor line;
-	local Y = patterns.render(patterns.hover_buf, patterns.hover_buf);
-
-	---|fE
-
-	---|fS "Position preview"
-
-	local width, height = hover_spec.width, math.min(vim.api.nvim_buf_line_count(patterns.hover_buf), hover_spec.height);
-	local quad = get_quadrant(width, height);
-	local relative, row, col = "cursor", 0, 0;
-
-	if quad[1] == "left" then
-		col = (hover_spec.width * -1) - 1;
-	elseif quad[1] == "right" then
-		col = 0;
+			border = "rounded",
+			style = "minimal"
+		}));
 	else
-		hover_spec.relative = "editor";
-		col = math.ceil((vim.o.columns - width) / 2);
+		vim.api.nvim_win_set_config(patterns.input_win, {
+			relative = "editor",
+
+			row = math.floor((vim.o.lines - (input_config.height + preview_config.height + 4)) / 2),
+			col = math.floor((vim.o.columns - preview_config.width) / 2),
+
+			title_pos = "right",
+			title = vim.bo[patterns.input_buf].ft == "LuaPatterns" and {
+				{ " 󰽀 Lua patterns ", "PatternsPalette0" }
+			} or {
+				{ "  Regex ", "PatternsPalette0" }
+			},
+
+			border = "rounded",
+			style = "minimal"
+		});
 	end
 
-	if quad[2] == "top" then
-		row = (height * -1) - 2;
-	elseif quad[2] == "bottom" then
-		row = 1;
+	if not patterns.preview_win or vim.api.nvim_win_is_valid(patterns.preview_win) == false then
+		patterns.preview_win = vim.api.nvim_open_win(patterns.preview_buf, false, vim.tbl_extend("force", preview_config, {
+			relative = "editor",
+
+			row = math.floor((vim.o.lines - (input_config.height + preview_config.height + 4)) / 2) + 3,
+			col = math.floor((vim.o.columns - preview_config.width) / 2),
+
+			footer_pos = "right",
+			footer = {
+				{ " " },
+				{ " 󰂖 Explain ", patterns.explain_mode == 1 and "PatternsPalette7" or "PatternsPalette0" },
+				{ " " },
+				{ " 󰄺 Match ", patterns.explain_mode == 2 and "PatternsPalette7" or "PatternsPalette0" },
+				{ " " }
+			},
+
+			border = "rounded",
+			style = "minimal"
+		}));
 	else
-		relative = "editor";
-		row = math.ceil((vim.o.lines - height) / 2);
+		vim.api.nvim_win_set_config(patterns.preview_win, {
+			relative = "editor",
+
+			row = math.floor((vim.o.lines - (input_config.height + preview_config.height + 4)) / 2) + 3,
+			col = math.floor((vim.o.columns - preview_config.width) / 2),
+
+			footer_pos = "right",
+			footer = {
+				{ " " },
+				{ " 󰂖 Explain ", patterns.explain_mode == 1 and "PatternsPalette7" or "PatternsPalette0" },
+				{ " " },
+				{ " 󰄺 Match ", patterns.explain_mode == 2 and "PatternsPalette7" or "PatternsPalette0" },
+				{ " " }
+			},
+
+			border = "rounded",
+			style = "minimal"
+		});
 	end
 
-	vim.api.nvim_win_set_config(patterns.hover_win, {
-		style = "minimal",
-		relative = relative,
-
-		row = row,
-		col = col,
-
-		width = width,
-		height = height,
-
-		border = hover_spec.border
-	});
-
-	if Y then
-		pcall(vim.api.nvim_win_set_cursor, patterns.hover_win, { Y, 0 });
-	end
+	vim.wo[patterns.input_win].winhl = "FloatBorder:PatternsInputBorder";
+	vim.wo[patterns.preview_win].winhl = "FloatBorder:PatternsPreviewBorder";
 
 	---|fE
 end
 
+patterns.explain_close = function ()
+	patterns.explain_au = vim.api.nvim_create_augroup("patterns.explain", { clear = true });
+
+	if patterns.explain_mode == 2 then
+		_, patterns.__explain_lines = pcall(vim.api.nvim_buf_get_lines, patterns.preview_buf, 0, -1, false);
+		_, patterns.__explain_pos = pcall(vim.api.nvim_win_get_cursor, patterns.preview_win);
+	end
+
+	pcall(vim.api.nvim_win_close, patterns.input_win, true);
+	pcall(vim.api.nvim_win_close, patterns.preview_win, true);
+
+	patterns.input_win = nil;
+	patterns.preview_win = nil;
+end
+
 patterns.actions = {
 	hover = function ()
-		local has_parser, parser = pcall(vim.treesitter.get_parser);
+		---|fS
 
-		if has_parser == true then
-			local buffer = vim.api.nvim_get_current_buf();
-			local lang = parser:lang();
-			local on_node = vim.treesitter.get_node({ ignore_injections = true });
+		hover.hover();
 
-			while on_node do
-				local node_ty = on_node:type();
+		---|fE
+	end,
 
-				local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
-				local range = { on_node:range() };
+	explain = function (ft, text)
+		ft = ft or "LuaPatterns";
+		text = text or "";
 
-				local text = vim.treesitter.get_node_text(on_node, buffer);
+		patterns.__set_bufs();
+		patterns.explain_mode = patterns.explain_mode or 1;
 
-				if text:match('^%"') then
-					text = text:gsub('^"', "");
-					range[2] = range[2] + 1;
+		vim.bo[patterns.input_buf].ft = ft;
 
-					text = text:gsub('"$', "");
-					range[4] = range[4] - 1;
-				elseif text:match('^%/') then
-					text = text:gsub('^/', "");
-					range[2] = range[2] + 1;
+		vim.api.nvim_buf_set_lines(patterns.input_buf, 0, -1, false, text);
+		patterns.update_explain();
 
-					text = text:gsub('/$', "");
-					range[4] = range[4] - 1;
-				end
-
-				if nodes.get_ft(lang, node_ty) then
-					--- This is a string.
-					patterns.hover(nodes.get_ft(lang, node_ty), { text }, { 1, cursor[2] - range[2] });
-					return;
-				end
-
-				on_node = on_node:parent();
-			end
-
-			vim.api.nvim_echo({
-				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
-				{ ": Couldn't find text node under cursor!", "Comment" }
-			}, true, { verbose = false });
+		if patterns.explain_mode == 1 then
+			patterns.render(patterns.input_buf, patterns.preview_buf)
+			vim.bo[patterns.preview_buf].modifiable = false;
 		else
-			local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
-			local line = vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), cursor[1] - 1, cursor[1], false)[1]
-
-			local before, after = string.sub(line, 0, cursor[1]), string.sub(line, cursor[1]);
-			local tB, tA = before:match("%S*$"), after:match("^%S*");
-
-			patterns.hover("LuaPatterns", { tB .. tA }, { 1, cursor[2] - #tB });
+			patterns.match();
 		end
+
+		---|fS "Keymaps"
+
+		vim.api.nvim_buf_set_keymap(patterns.input_buf, "n", "<tab>", "", {
+			callback = function ()
+				vim.api.nvim_set_current_win(patterns.preview_win);
+			end
+		});
+
+		vim.api.nvim_buf_set_keymap(patterns.preview_buf, "n", "<tab>", "", {
+			callback = function ()
+				vim.api.nvim_set_current_win(patterns.input_win);
+			end
+		});
+
+		vim.api.nvim_buf_set_keymap(patterns.preview_buf, "n", "M", "", {
+			callback = function ()
+				patterns.explain_mode = 2;
+				patterns.clear(patterns.preview_buf);
+
+				pcall(vim.api.nvim_buf_set_lines, patterns.preview_buf, 0, -1, false, patterns.__explain_lines);
+				pcall(vim.api.nvim_win_set_cursor, patterns.preview_win, patterns.__explain_pos);
+
+				vim.bo[patterns.preview_buf].modifiable = true;
+
+				patterns.update_explain();
+			end
+		});
+
+		vim.api.nvim_buf_set_keymap(patterns.preview_buf, "n", "E", "", {
+			callback = function ()
+				patterns.explain_mode = 1;
+
+				_, patterns.__explain_lines = pcall(vim.api.nvim_buf_get_lines, patterns.preview_buf, 0, -1, false);
+				_, patterns.__explain_pos = pcall(vim.api.nvim_win_get_cursor, patterns.preview_win);
+
+				patterns.render(patterns.input_buf, patterns.preview_buf);
+				vim.bo[patterns.preview_buf].modifiable = false;
+
+				patterns.update_explain();
+			end
+		});
+
+		---|fE
+
+		vim.api.nvim_create_autocmd("VimResized", {
+			group = patterns.explain_au,
+
+			callback = function ()
+				patterns.update_explain();
+				vim.bo[patterns.preview_buf].modifiable = false;
+			end
+		});
+
+		local inp_timer = vim.uv.new_timer();
+
+		vim.api.nvim_create_autocmd({
+			"TextChanged", "TextChangedI",
+			"CursorMoved", "CursorMovedI"
+		}, {
+			group = patterns.explain_au,
+			buffer = patterns.input_buf,
+
+			callback = function ()
+				inp_timer:stop();
+				inp_timer:start(50, 0, vim.schedule_wrap(function ()
+					if patterns.explain_mode == 1 then
+						patterns.render(patterns.input_buf, patterns.preview_buf);
+						vim.bo[patterns.preview_buf].modifiable = false;
+					else
+						patterns.match();
+					end
+				end));
+			end
+		});
+
+		local prv_timer = vim.uv.new_timer();
+
+		vim.api.nvim_create_autocmd({
+			"TextChanged", "TextChangedI",
+		}, {
+			group = patterns.explain_au,
+			buffer = patterns.preview_buf,
+
+			callback = function ()
+				prv_timer:stop();
+				prv_timer:start(50, 0, vim.schedule_wrap(function ()
+					if patterns.explain_mode == 2 then
+						patterns.match();
+					end
+				end));
+			end
+		});
+
+		vim.api.nvim_create_autocmd("WinEnter", {
+			group = patterns.explain_au,
+
+			callback = function ()
+				local win = vim.api.nvim_get_current_win();
+
+				if win ~= patterns.input_win and win ~= patterns.preview_win then
+					patterns.explain_close();
+				end
+			end
+		});
+
+		vim.api.nvim_create_autocmd("WinClosed", {
+			pattern = { tostring(patterns.input_win), tostring(patterns.preview_win) },
+
+			callback = function ()
+				patterns.explain_close();
+			end
+		});
 	end
 };
 
