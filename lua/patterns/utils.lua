@@ -1,4 +1,5 @@
 local utils = {};
+local nodes = require("patterns.nodes");
 
 --- Checks if a parser is available or not
 ---@param parser_name string
@@ -20,27 +21,142 @@ utils.parser_installed = function (parser_name)
 	return false;
 end
 
---- Escapes magic characters from a string
----@param input string
----@return string
-utils.escape_string = function (input)
-	input = input:gsub("%%", "%%%%");
+--- Get pattern range under cursor.
+--- Returns nil on fail.
+---@return nil | string
+---@return nil | string[]
+---@return nil | integer[]
+utils.create_pattern_range = function ()
+	---@type boolean, table
+	local has_parser, parser = pcall(vim.treesitter.get_parser);
 
-	input = input:gsub("%(", "%%(");
-	input = input:gsub("%)", "%%)");
+	if has_parser == true then
+		---@type integer
+		local buffer = vim.api.nvim_get_current_buf();
+		---@type string
+		local lang = parser:lang();
+		---@type table
+		local on_node = vim.treesitter.get_node({ ignore_injections = true });
 
-	input = input:gsub("%.", "%%.");
-	input = input:gsub("%+", "%%+");
-	input = input:gsub("%-", "%%-");
-	input = input:gsub("%*", "%%*");
-	input = input:gsub("%?", "%%?");
-	input = input:gsub("%^", "%%^");
-	input = input:gsub("%$", "%%$");
+		while on_node do
+			---@type string
+			local node_ty = on_node:type();
 
-	input = input:gsub("%[", "%%[");
-	input = input:gsub("%]", "%%]");
+			---@type [ integer, integer ]
+			local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
+			---@type integer[]
+			local range = { on_node:range() };
 
-	return input;
+			---@type string
+			local text = vim.treesitter.get_node_text(on_node, buffer);
+
+			if text:match('^%"') then
+				text = text:gsub('^%"+', "");
+				range[2] = range[2] + 1;
+
+				text = text:gsub('%"+$', "");
+				range[4] = range[4] - 1;
+			elseif text:match('^%/') then
+				text = text:gsub('^%/', "");
+				range[2] = range[2] + 1;
+
+				text = text:gsub('/$', "");
+				range[4] = range[4] - 1;
+			end
+
+			text = vim.split(text, "\n", { trimempty = true })
+
+			if nodes.get_ft(lang, node_ty) then
+				return nodes.get_ft(lang, node_ty), vim.islist(text) and text or { text }, range;
+			end
+
+			on_node = on_node:parent();
+		end
+
+		vim.api.nvim_echo({
+			{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+			{ ": Couldn't find text node under cursor!", "Comment" }
+		}, true, { verbose = false });
+	else
+		local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
+		local line = vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), cursor[1] - 1, cursor[1], false)[1]
+
+		local before, after = string.sub(line, 0, cursor[2]), string.sub(line, cursor[2] + 1);
+		local tB, tA = before:match("%S*$"), after:match("^%S*");
+
+		if tB == "" and tA == "" then
+			vim.api.nvim_echo({
+				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+				{ ": Couldn't find text under cursor!", "Comment" }
+			}, true, { verbose = false });
+		else
+			return "LuaPatterns", { tB .. tA }, { cursor[1], cursor[2] - #tB, cursor[1], cursor[2] + #tA };
+		end
+	end
+end
+
+--- Get which quadrant to open the window on.
+---
+--- ```txt
+---    top, left ↑ top, right
+---            ← █ →
+--- bottom, left ↓ bottom, right
+--- ```
+---@param w integer
+---@param h integer
+---@return [ "left" | "right" | "center", "top" | "bottom" | "center" ]
+utils.get_quadrant = function (w, h)
+	---|fS
+
+	---@type integer
+	local window = vim.api.nvim_get_current_win();
+	---@type [ integer, integer ]
+	local src_c  = vim.api.nvim_win_get_cursor(window);
+
+	--- (Terminal) Screen position.
+	---@class screen.pos
+	---
+	---@field row integer Screen row.
+	---@field col integer First screen column.
+	---@field endcol integer Last screen column.
+	---
+	---@field curscol integer Cursor screen column.
+	local scr_p = vim.fn.screenpos(window, src_c[1], src_c[2]);
+
+	---@type integer, integer Vim's width & height.
+	local vW, vH = vim.o.columns, vim.o.lines - (vim.o.cmdheight or 0);
+	---@type "left" | "right", "top" | "bottom"
+	local x, y;
+
+	if scr_p.curscol - w <= 0 then
+		--- Not enough spaces on `left`.
+		if scr_p.curscol + w >= vW then
+			--- Not enough space on `right`.
+			return { "center", "center" };
+		else
+			--- Enough spaces on `right`.
+			x = "right";
+		end
+	else
+		--- Enough space on `left`.
+		x = "left";
+	end
+
+	if scr_p.row + h >= vH then
+		--- Not enough spaces on `top`.
+		if scr_p.row - h <= 0 then
+			--- Not enough spaces on `bottom`.
+			return { "center", "center" };
+		else
+			y = "top";
+		end
+	else
+		y = "bottom";
+	end
+
+	return { x, y };
+
+	---|fE
 end
 
 --- Clamps a value between a range
@@ -50,15 +166,6 @@ end
 ---@return number
 utils.clamp = function (val, min, max)
 	return math.min(math.max(val, min), max);
-end
-
---- Linear interpolation between 2 values
----@param x number
----@param y number
----@param t number
----@return number
-utils.lerp = function (x, y, t)
-	return x + ((y - x) * t);
 end
 
 --- Checks if a highlight group exists or not
@@ -74,39 +181,6 @@ utils.set_hl = function (hl)
 	else
 		return hl;
 	end
-end
-
-utils.virt_len = function (virt_texts)
-	if not virt_texts then
-		return 0;
-	end
-
-	local _l = 0;
-
-	for _, text in ipairs(virt_texts) do
-		_l = _l + vim.fn.strdisplaywidth(text[1]);
-	end
-
-	return _l;
-end
-
-utils.tostatic = function (tbl, opts)
-	if not opts then opts = {}; end
-	local _o = {};
-
-	for k, v in pairs(tbl or {}) do
-		---@diagnostic disable
-		if
-			pcall(v, unpack(opts.args or {}))
-		then
-			_o[k] = v(unpack(opts.args or {}));
-		---@diagnostic enable
-		elseif type(v) ~= "function" then
-			_o[k] = v;
-		end
-	end
-
-	return _o;
 end
 
 utils.create_user_command_class = function (config)
@@ -191,93 +265,6 @@ utils.create_user_command_class = function (config)
 	end
 
 	return class;
-end
-
---- Gets a config from a list of config tables.
---- NOTE, {name} will be used to index the config.
----@param config table
----@param name string
----@param opts { default: boolean, def_fallback: any?, eval_args: any[], ignore_keys?: any[] }
----@return any
-utils.match = function (config, name, opts)
-	config = config or {};
-	name = name or "";
-	opts = opts or {};
-
-	local spec = require("markview.spec");
-
-	--- Default configuration
-	local default = {};
-
-	if opts.default ~= false then
-		default = spec.get({ "default" }, vim.tbl_extend("keep", {
-			source = config,
-			fallback = opts.def_fallback
-		}, opts));
-	end
-
-	local match = {};
-
-	local sort_keys = function (values)
-		local w_priority = {};
-		local n_priority = {};
-
-		for k, v in pairs(values or {}) do
-			if type(v) == "table" and type(v.priority) == "number" then
-				table.insert(w_priority, {
-					key = k,
-					priority = v.priority
-				});
-			elseif k ~= "default" and vim.list_contains(opts.ignore_keys or {}, k) == false then
-				table.insert(n_priority, k);
-			end
-		end
-
-		table.sort(w_priority, function (a, b)
-			return a.priority > b.priority;
-		end)
-
-		local keys = {};
-
-		for _, item in ipairs(w_priority) do
-			table.insert(keys, item.key);
-		end
-
-		keys = vim.list_extend(n_priority, keys);
-
-		return keys;
-	end
-
-	local function is_valid (value, pattern)
-		local ignore = opts.ignore_keys or {};
-
-		if vim.list_contains(ignore, pattern) then
-			return false;
-		elseif string.match(value, pattern) then
-			return true;
-		else
-			return false;
-		end
-	end
-
-	--- NOTE, We should sort the keys so that we
-	--- don't get different results every time
-	--- when multiple patterns can be matched.
-	---
-	---@type string[]
-	local keys = sort_keys(config or {});
-
-	for _, key in ipairs(keys) do
-		if is_valid(name, key) == true then
-			match = spec.get(
-				{ key },
-				vim.tbl_extend("force", opts, { source = config })
-			);
-			break
-		end
-	end
-
-	return vim.tbl_deep_extend("force", default, match);
 end
 
 utils.win_findbuf = function (buffer)
