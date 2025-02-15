@@ -324,4 +324,8 @@ regex.render = function (buffer, content)
 	return current_line;
 end
 
+regex.clear = function (buffer, from, to)
+	vim.api.nvim_buf_clear_namespace(buffer, regex.ns, from or 0, to or -1);
+end
+
 return regex;

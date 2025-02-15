@@ -189,4 +189,8 @@ lua_patterns.render = function (buffer, content)
 	return current_line;
 end
 
+lua_patterns.clear = function (buffer, from, to)
+	vim.api.nvim_buf_clear_namespace(buffer, lua_patterns.ns, from or 0, to or -1);
+end
+
 return lua_patterns;
