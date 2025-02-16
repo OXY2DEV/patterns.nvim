@@ -3,6 +3,7 @@ local spec = require("patterns.spec");
 local nodes = require("patterns.nodes");
 
 local hover = require("patterns.hover");
+local explain = require("patterns.explain");
 
 --- Renders stuff to the preview buffer
 patterns.render = function (src_buf, prev_buf)
@@ -250,7 +251,12 @@ patterns.actions = {
 		---|fE
 	end,
 
-	explain = function (ft, text)
+	explain = function (ft, text, range)
+		if 1 < 2 then
+			explain.explain(ft, text[1], range);
+			return;
+		end
+
 		ft = ft or "LuaPatterns";
 		text = text or "";
 

@@ -15,5 +15,5 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 });
 
 vim.api.nvim_create_user_command("Pat", function ()
-	require("patterns").actions.hover();
+	require("patterns").actions.explain("lua_patterns", { "hi" });
 end, {})
