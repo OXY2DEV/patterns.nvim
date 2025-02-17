@@ -1,0 +1,45 @@
+---@meta
+
+
+---@class pattern_item.opts
+---
+--- Can be set to `false` to disable rendering of 
+--- a specific node type.
+---@field enable? boolean
+---
+--- Can be set to `true` to show the text of a
+--- node after the text.
+---@field show_content? boolean
+---
+--- Can be set to `true` to show the range of a
+--- node.
+---@field show_range? boolean
+---
+--- Highlight group for the tooltip text.
+---@field text_hl? string
+---
+---@field text? string
+---
+--- When set to `true`, shows tooltip for nodes.
+--- By default this only shows tips for the current
+--- node.
+---@field show_tip? boolean
+---
+--- When set to `true` tooltips are always shown.
+---@field always_show_tip? boolean
+---
+--- Highlight group for the tooltip text.
+---@field tip_hl? string
+---
+--- Number of spaces to add before tooltip text.
+--- This is added AFTER the indentation.
+---@field tip_offset? integer
+---
+--- Highlight group for the node range.
+---@field range_hl? string
+---
+--- Bade highlight group. Used by other *_hl
+--- options when they don't have a value.
+---@field hl? string
+
+
