@@ -23,10 +23,11 @@ end
 
 --- Get pattern range under cursor.
 --- Returns nil on fail.
+---@param silent nil | boolean
 ---@return nil | string
 ---@return nil | string[]
 ---@return nil | integer[]
-utils.create_pattern_range = function ()
+utils.create_pattern_range = function (silent)
 	---@type boolean, table
 	local has_parser, parser = pcall(vim.treesitter.get_parser);
 
@@ -73,10 +74,12 @@ utils.create_pattern_range = function ()
 			on_node = on_node:parent();
 		end
 
-		vim.api.nvim_echo({
-			{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
-			{ ": Couldn't find text node under cursor!", "Comment" }
-		}, true, { verbose = false });
+		if silent ~= true then
+			vim.api.nvim_echo({
+				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+				{ ": Couldn't find text node under cursor!", "Comment" }
+			}, true, { verbose = false });
+		end
 	else
 		local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
 		local line = vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), cursor[1] - 1, cursor[1], false)[1]
@@ -85,12 +88,14 @@ utils.create_pattern_range = function ()
 		local tB, tA = before:match("%S*$"), after:match("^%S*");
 
 		if tB == "" and tA == "" then
-			vim.api.nvim_echo({
-				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
-				{ ": Couldn't find text under cursor!", "Comment" }
-			}, true, { verbose = false });
+			if silent ~= true then
+				vim.api.nvim_echo({
+					{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+					{ ": Couldn't find text under cursor!", "Comment" }
+				}, true, { verbose = false });
+			end
 		else
-			return "LuaPatterns", { tB .. tA }, { cursor[1], cursor[2] - #tB, cursor[1], cursor[2] + #tA };
+			return "LuaPatterns", { tB .. tA }, { cursor[1] - 1, cursor[2] - #tB, cursor[1] - 1, cursor[2] + #tA };
 		end
 	end
 end
