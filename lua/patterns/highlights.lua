@@ -666,7 +666,7 @@ highlights.dynamic = {
 				}
 			},
 			{
-				group_name = "PatternsInputBorder",
+				group_name = "PatternsPalette0Fg",
 				value = {
 					default = true,
 
@@ -726,6 +726,14 @@ highlights.dynamic = {
 				}
 			},
 			{
+				group_name = "PatternsPalette1Fg",
+				value = {
+					default = true,
+
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
 				group_name = "PatternsPalette1Bg",
 				value = {
 					default = true,
@@ -774,6 +782,14 @@ highlights.dynamic = {
 					default = true,
 
 					bg = highlights.rgb_to_hex(res_bg),
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
+				group_name = "PatternsPalette2Fg",
+				value = {
+					default = true,
+
 					fg = highlights.rgb_to_hex(h_fg)
 				}
 			},
@@ -830,6 +846,14 @@ highlights.dynamic = {
 				}
 			},
 			{
+				group_name = "PatternsPalette3Fg",
+				value = {
+					default = true,
+
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
 				group_name = "PatternsPalette3Bg",
 				value = {
 					default = true,
@@ -878,6 +902,14 @@ highlights.dynamic = {
 					default = true,
 
 					bg = highlights.rgb_to_hex(res_bg),
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
+				group_name = "PatternsPalette4Fg",
+				value = {
+					default = true,
+
 					fg = highlights.rgb_to_hex(h_fg)
 				}
 			},
@@ -934,6 +966,14 @@ highlights.dynamic = {
 				}
 			},
 			{
+				group_name = "PatternsPalette5Fg",
+				value = {
+					default = true,
+
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
 				group_name = "PatternsPalette5Bg",
 				value = {
 					default = true,
@@ -982,6 +1022,14 @@ highlights.dynamic = {
 					default = true,
 
 					bg = highlights.rgb_to_hex(res_bg),
+					fg = highlights.rgb_to_hex(h_fg)
+				}
+			},
+			{
+				group_name = "PatternsPalette6Fg",
+				value = {
+					default = true,
+
 					fg = highlights.rgb_to_hex(h_fg)
 				}
 			},
@@ -1038,7 +1086,7 @@ highlights.dynamic = {
 				}
 			},
 			{
-				group_name = "PatternsPreviewBorder",
+				group_name = "PatternsPalette7Fg",
 				value = {
 					default = true,
 
