@@ -34,84 +34,56 @@ spec.default = {
 	lua_patterns = {
 		indent_size = 2,
 		indent_marker = "╎",
-		indent_hl = "PatternsInputBorder",
+		indent_hl = "PatternsPalette0Fg",
 
 		pattern = {
-			text = "󰛪 Pattern",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = "󰐱 Pattern",
 
 			tip_hl = "PatternsPalette0Bg",
-			hl = "PatternsPalette0"
+			hl = "PatternsPalette0";
 		},
 
 		----------------------------------------
 
 		anchor_start = {
-			text = "󰀱 From start",
+			text = "󰾺 From start",
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		anchor_end = {
-			text = "󰀱 To end",
+			text = "󰾸 To end",
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		----------------------------------------
 
 		quantifier_minus = {
-			text = " Repeats zero or more times(non-greedily)",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = "󰑖 Zero or more times(non-greedily)",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
 		},
 
 		quantifier_optional = {
-			text = " Repeats zero or one time",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = "󰑘 Zero or one time",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
 		},
 
 		quantifier_plus = {
-			text = " Repeats one or more times",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = "󰑘 One or more times",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
 		},
 
 		quantifier_star = {
-			text = " Repeats zero or more times",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = "󰑖 Zero or more times(greedily)",
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -120,44 +92,38 @@ spec.default = {
 		----------------------------------------
 
 		character = {
-			text = "󱄽 Character:",
+			text = function (_, item)
+				if item.text == "\\" then
+					return '󱄽 Character: "\\"';
+				else
+					return string.format("󱄽 Character: %s", vim.inspect(item.text));
+				end
+			end,
 
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette2Bg",
-			hl = "PatternsPalette2"
+			tip_hl = "PatternsPalette4Bg",
+			hl = "PatternsPalette4"
 		},
 
 		any = {
 			text = " Any character",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
 		},
 
 		escape_sequence = {
-			text = "󰩈 Escape sequence:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = function (_, item)
+				return string.format('󰩈 Escape sequence: "%s"', item.text);
+			end,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
 		},
 
 		escaped_character = {
-			text = "󰩈 Escaped character:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			text = function (_, item)
+				return string.format('󰩈 Escaped character: "%s"', item.text);
+			end,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -165,34 +131,25 @@ spec.default = {
 
 		----------------------------------------
 
-		character_set = {
-			text = "󰀁 Character set:",
-
-			-- show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette5Bg",
-			hl = "PatternsPalette5"
-		},
-
-		character_set_content = {
-			text = "󰆦 Set content:",
-
-			-- show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+		capture_group = {
+			text = function (_, item)
+				return string.format(" Capture group, 󱤬 %d", item.id or -1);
+			end,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
 		},
 
-		capture_group = {
-			text = function (_, item)
-				return string.format("󱉶 Capture group(#%d)", item.id or -1);
-			end,
+		character_set = {
+			text = "󱉓 Character set",
 
-			-- show_content = false,
+			tip_hl = "PatternsPalette3Bg",
+			hl = "PatternsPalette3"
+		},
+
+		character_set_content = {
+			text = "󰆦 Character set content,",
+
 			range_hl = "PatternsInputBorder",
 			indent_hl = "PatternsInputBorder",
 
@@ -201,9 +158,10 @@ spec.default = {
 		},
 
 		character_range = {
-			text = "󰊱 Character range:",
+			text = function (_, item)
+				return string.format("󰊱 Character range: %s", item.text);
+			end,
 
-			-- show_content = false,
 			range_hl = "PatternsInputBorder",
 			indent_hl = "PatternsInputBorder",
 
@@ -212,9 +170,10 @@ spec.default = {
 		},
 
 		character_class = {
-			text = "󰏗 Character class:",
+			text = function (_, item)
+				return "󰏗 Character class: " .. vim.inspect(item.text);
+			end,
 
-			show_content = true,
 			range_hl = "PatternsInputBorder",
 			indent_hl = "PatternsInputBorder",
 
