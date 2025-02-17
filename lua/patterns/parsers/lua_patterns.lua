@@ -149,7 +149,7 @@ end
 
 ------------------------------------------------------------------------------
 
-lua_patterns.any = function (buffer, node)
+lua_patterns.any_character = function (buffer, node)
 	local text = vim.treesitter.get_node_text(node, buffer);
 
 	--- Remove quantifiers.
@@ -183,33 +183,19 @@ lua_patterns.class_pattern = function (buffer, node)
 	};
 end
 
-lua_patterns.trail_character = function (buffer, node)
-	local text = vim.treesitter.get_node_text(node, buffer);
-
-	if text:match("[^%%][%+%-%*%?]$") then
-		text = text:gsub("[%+%-%*%?]$", "");
-	end
-
-	return {
-		kind = "trialing_character",
-		current = node:equal(lua_patterns.current),
-
-		text = text,
-		range = { node:range() }
-	};
-end
-
 lua_patterns.literal_character = function (buffer, node)
 	local text = vim.treesitter.get_node_text(node, buffer);
 
 	if node:parent():type() == "pattern" and node:next_sibling() == nil then
-		lua_patterns.trail_character(buffer, node)
+		--- Don't parse the \n at the end of the
+		--- buffer.
+		return;
+	elseif node:parent():type() == "character_range" then
+		--- Don't parse characters inside ranges.
 		return;
 	elseif text:match("[^%%][%+%-%*%?]$") then
 		text = text:gsub("[%+%-%*%?]$", "");
 	end
-
-	text = vim.inspect(text):gsub('^%"\n', "");
 
 	return {
 		kind = "character",
@@ -228,9 +214,6 @@ lua_patterns.escaped_character = function (buffer, node)
 	elseif text:match("^%%$") then
 		return;
 	end
-
-	text = text:match("^%%(.)");
-	text = vim.inspect(text);
 
 	return {
 		kind = "escaped_character",
