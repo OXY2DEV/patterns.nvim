@@ -9,24 +9,108 @@ lua_patterns.tips = {
 	anchor_start = "Only match if the pattern is at the beginning of the string.",
 	anchor_end = "Only match if the pattern is at the end of the string.",
 
-	quantifier_minus = "Matches a pattern zero or more times.\n \n This will match the shortest sequence.",
+	quantifier_minus = "Matches a pattern zero or more times.\n \n This will match the lowest number of repeats.",
 	quantifier_optional = "Matches a pattern zero or one time.",
-	quantifier_plus = "Matches a pattern one or more times.\n \n This will match the longest sequence.",
-	quantifier_star = "Matches a pattern zero or more times.\n \n This will match the longest sequence.",
+	quantifier_plus = "Matches a pattern one or more times.\n \n This will match the highest number of repeats.",
+	quantifier_star = "Matches a pattern zero or more times.\n \n This will match the highest number of repeats.",
 
 	character = function (_, item)
-		return string.format("Matches %s literally.", item.text);
+		return string.format("Matches %s literally.", vim.inspect(item.text));
 	end,
 	any = "Matches any character.",
-	escaped_character = "A character that was escaped. \n \n Usually used to match magic characters.",
-	escape_sequence = "An escape sequence. Used for special characters(e.g. \\n).",
+	escaped_character = function (_, item)
+		local _l = {
+			"A character that was escaped.",
+			"",
+			"",
+			"Escaping is typically done to match magic characters(e.g. ^, $) literally."
+		};
+		local char = string.match(item.text, "^%%(.)$");
+
+		if string.match(char, "[%.%^%$%+%-%*%?%%%[%]%(%)]") then
+			table.insert(_l, 3, string.format("✔ %s is a magic character.", vim.inspect(char)));
+		else
+			table.insert(_l, 3, string.format("✘ %s isn't a magic character!", vim.inspect(char)));
+			table.insert(_l, string.format("As %s isn't a magic character there's no need to escape it.", vim.inspect(char)));
+		end
+
+		return table.concat(_l, "\n");
+	end,
+	escape_sequence = function (_, item)
+		local seq_maps = {
+			["\\b"]  = "󰌥 This one represents a backspace.",
+			-- ["\\f"]  = "󰌥 This one represents a backspace.",
+			["\\n"]  = "󰌑 This one represents a newlinw.",
+			["\\t"]  = "󰌒 This one represents a tab.",
+			["\\r"]  = "󰌏 This one represents a return carriage.",
+			-- ["\\v"]  = "󰌥 This one represents a backspace.",
+			["\\0"]  = "󰋷 This one represents a null byte.",
+			["\\\\"] = '󰓾 This one represents a "\\".',
+			["\\'"]  = ' This one represents a "\'".',
+			['\\"']  = " This one represents a '\"'.",
+
+			default = "This one matches " .. item.text .. "."
+		}
+		return table.concat({
+			"An escape sequence.",
+			"",
+			seq_maps[item.text] or seq_maps.default
+		}, "\n");
+	end,
 
 	character_set = "Matches characters from a set of matches.",
-	character_set_content = "Set of matches.",
+	-- character_set_content = "Set of matches.",
 	capture_group = "A pattern group to be used for various string operations.",
 	character_range = "Matches character within the given range.",
-	character_class = function ()
-		return "Matches a class of characters."
+	character_class = function (_, item)
+		local txt = item.text;
+		local _l = { "Matches a class of characters.", "" };
+
+		if txt == "%a" then
+			table.insert(_l, '"%a" matches all letters. It\'s equivalent would be: [a-zA-Z].');
+		elseif txt == "%A" then
+			table.insert(_l, '"%A" matches anything that\'s not a letter. It\'s equivalent would be: [^a-zA-Z].');
+		elseif txt == "%c" then
+			-- table.insert(_l, '"%c" matches all control characters. It\'s equivalent would be: [^a-zA-Z].');
+		elseif txt == "%C" then
+			-- table.insert(_l, '"%C" matches anything that\'s not a control character. It\'s equivalent would be: [^a-zA-Z].');
+		elseif txt == "%d" then
+			table.insert(_l, '"%d" matches all digits. It\'s equivalent would be: [0-9].');
+		elseif txt == "%D" then
+			table.insert(_l, '"%D" matches anything that\'s not a digit. It\'s equivalent would be: [^0-9].');
+		elseif txt == "%l" then
+			table.insert(_l, '"%l" matches all lowercase letters. It\'s equivalent would be: [a-z].');
+		elseif txt == "%L" then
+			table.insert(_l, '"%L" matches anything that\'s not a lowercase letter. It\'s equivalent would be: [^a-z].');
+		elseif txt == "%p" then
+			table.insert(_l, '"%p" matches all punctuation symbols. It\'s equivalent would be: [a-z].');
+		elseif txt == "%P" then
+			table.insert(_l, '"%P" matches anything that\'s not a punctuation symbol. It\'s equivalent would be: [^a-z].');
+		elseif txt == "%s" then
+			table.insert(_l, '"%p" matches all whitespace characters. It\'s equivalent would be: [ \\t\\n\\r].');
+		elseif txt == "%S" then
+			table.insert(_l, '"%P" matches anything that\'s not a punctuation symbol. It\'s equivalent would be: [^ \\t\\n\\r].');
+		elseif txt == "%u" then
+			table.insert(_l, '"%u" matches all uppercase letters. It\'s equivalent would be: [A-Z].');
+		elseif txt == "%U" then
+			table.insert(_l, '"%U" matches anything that\'s not a uppercase letter. It\'s equivalent would be: [^A-Z].');
+		elseif txt == "%w" then
+			-- table.insert(_l, '"%w" matches all alphanumeric characters. It\'s equivalent would be: [^a-zA-Z].');
+		elseif txt == "%W" then
+			-- table.insert(_l, '"%W" matches anything that\'s not an alphanumeric character. It\'s equivalent would be: [^a-zA-Z].');
+		elseif txt == "%x" then
+			table.insert(_l, '"%x" matches all hexadecimal characters. It\'s equivalent would be: [a-fA-F0-9].');
+		elseif txt == "%X" then
+			table.insert(_l, '"%X" matches anything that\'s not an hexadecimal character. It\'s equivalent would be: [^a-fA-F0-9].');
+		elseif txt == "%z" then
+			table.insert(_l, '"%x" matches the null byte. It\'s equivalent would be: [\\0].');
+		elseif txt == "%Z" then
+			table.insert(_l, '"%Z" matches anything that\'s not a null byte. It\'s equivalent would be: [^\\0].');
+		else
+			table.remove(_l, 2);
+		end
+
+		return table.concat(_l, "\n");
 	end,
 }
 
@@ -52,7 +136,7 @@ lua_patterns.__generic = function (buffer, item)
 		eval_args = { buffer, item }
 	});
 
-	---@type table Config table.
+	---@type pattern_item.opts Config table.
 	local config = spec.get({ "lua_patterns", item.kind }, {
 		fallback = {},
 		eval_args = { buffer, item }
@@ -69,8 +153,7 @@ lua_patterns.__generic = function (buffer, item)
 	vim.api.nvim_buf_set_lines(buffer, -1, -1, false, {
 		table.concat({
 			" ",
-			config.text or item.text,
-			config.show_content == true and " " .. item.text or ""
+			config.text or item.text
 		})
 	});
 
@@ -84,7 +167,7 @@ lua_patterns.__generic = function (buffer, item)
 
 		virt_text_pos = "right_align",
 		virt_text = config.show_range == true and {
-			{ string.format("[ %d,%d - %d,%d ]", range[1], range[2], range[3], range[4]), utils.set_hl(config.range_hl) }
+			{ string.format("[ %d,%d ] - [ %d,%d ]", range[1], range[2], range[3], range[4]), utils.set_hl(config.range_hl) }
 		} or nil,
 
 		line_hl_group = utils.set_hl(config.text_hl or config.hl),
@@ -98,7 +181,7 @@ lua_patterns.__generic = function (buffer, item)
 		eval_args = { buffer, item}
 	});
 
-	if tip and config.show_tip ~= false and (config.always_show_tip == true or item.current) then
+	if tip and config.show_tip ~= false then
 		local lines = utils.to_lines(tip, math.ceil(win_w * 0.8) - (2 * item.level));
 
 		for _, line in ipairs(lines) do
@@ -139,7 +222,7 @@ lua_patterns.__generic = function (buffer, item)
 							indent_part(),
 							item.level
 						),
-						utils.set_hl(config.indent_hl)
+						utils.set_hl(indent_hl)
 					}
 				},
 
