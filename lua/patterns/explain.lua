@@ -219,14 +219,18 @@ explain.matcher = {
 			return;
 		end
 
-		local regex = vim.regex(input);
+		local made_regex, regex = pcall(vim.regex, input);
+
+		if made_regex == false then
+			return;
+		end
 
 		for l, line in ipairs(vim.api.nvim_buf_get_lines(explain.preview_buf, 0, -1, false)) do
 			if string.match(line, "^%s*$") then
 				goto continue;
 			end
 
-			local can_match, from, to = pcall(regex.match_str, regex, line, input);
+			local can_match, from, to = pcall(regex.match_str, regex, line, "\v" .. input);
 
 			if not from and not to then
 				can_match = false;
@@ -266,6 +270,11 @@ explain.matcher = {
 			end
 
 			local can_match = pcall(string.match, line, input);
+
+			if can_match == false then
+				goto continue;
+			end
+
 			local matches = { string.match(line, input) };
 
 			if #matches == 0 then
@@ -353,15 +362,16 @@ explain.close = function ()
 	pcall(vim.api.nvim_win_close, explain.preview_win, true);
 end
 
-explain.explain = function (ft, text, range, mode)
+explain.explain = function (ft, text, range, mode, buffer)
 	ft = ft or "lua_patterns";
 	text = text or "";
 
 	explain.mode = mode or 1;
+	buffer = buffer or vim.api.nvim_get_current_buf();
 
 	if not range then
 		local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
-		range = { cursor[1], cursor[2], cursor[1], cursor[2] };
+		range = { cursor[1] - 1, cursor[2], cursor[1] - 1, cursor[2] };
 	end
 
 	if not explain.supported_fts[ft] then
@@ -371,7 +381,7 @@ explain.explain = function (ft, text, range, mode)
 	explain.update_winpos(ft);
 
 	vim.bo[explain.input_buf].ft = explain.supported_fts[ft];
-	vim.api.nvim_buf_set_lines(explain.input_buf, 0, -1, false, { text });
+	vim.api.nvim_buf_set_lines(explain.input_buf, 0, -1, false, vim.islist(text) and text or { text });
 
 	if explain.mode == 1 then
 		explain.render();
@@ -523,6 +533,24 @@ explain.explain = function (ft, text, range, mode)
 
 	vim.api.nvim_buf_set_keymap(explain.preview_buf, "n", "q", "", {
 		callback = function ()
+			explain.close();
+		end
+	});
+
+	vim.api.nvim_buf_set_keymap(explain.input_buf, "n", "<CR>", "", {
+		callback = function ()
+			local input = vim.api.nvim_buf_get_lines(explain.input_buf, 0, -1, false);
+			pcall(vim.api.nvim_buf_set_text, buffer, range[1], range[2], range[3], range[4], input);
+
+			explain.close();
+		end
+	});
+
+	vim.api.nvim_buf_set_keymap(explain.preview_buf, "n", "<CR>", "", {
+		callback = function ()
+			local input = vim.api.nvim_buf_get_lines(explain.input_buf, 0, -1, false);
+			pcall(vim.api.nvim_buf_set_text, buffer, range[1], range[2], range[3], range[4], input);
+
 			explain.close();
 		end
 	});
