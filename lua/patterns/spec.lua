@@ -67,6 +67,12 @@ spec.default = {
 				end
 			end
 
+			local ft;
+
+			if package.loaded["patterns.hover"] and package.loaded["patterns.hover"].buf then
+				ft = vim.bo[package.loaded["patterns.hover"].buf].ft;
+			end
+
 			return {
 				width = math.floor(vim.o.columns * 0.6),
 				height = math.floor(vim.o.lines * 0.5),
@@ -75,9 +81,9 @@ spec.default = {
 
 				footer_pos = "right",
 				footer = {
-					{ "╸" },
-					{ "󰛪 Patterns" },
-					{ "╺" },
+					{ "╸", "FloatBorder" },
+					{ " 󰛪 " .. (ft or "Patterns") .. " ", "FloatBorder" },
+					{ "╺", "FloatBorder" },
 				}
 			}
 		end

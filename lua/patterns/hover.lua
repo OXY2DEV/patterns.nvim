@@ -10,7 +10,6 @@ hover.au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
 hover.buf, hover.win = nil, nil;
 
 hover.actions = {
-	open = hover.hovee,
 	close = function ()
 		hover.au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
 		pcall(vim.api.nvim_win_close, hover.win, true);
@@ -63,8 +62,8 @@ hover.hover = function ()
 		title = user_config.title,
 		title_pos = user_config.title_pos,
 
-		footer = user_config.title,
-		footer_pos = user_config.title_pos,
+		footer = user_config.footer,
+		footer_pos = user_config.footer_pos,
 
 		style = "minimal",
 		border = user_config.border
@@ -144,6 +143,12 @@ hover.hover = function ()
 
 		width = w,
 		height = h,
+
+		title = user_config.title,
+		title_pos = user_config.title_pos,
+
+		footer = user_config.footer,
+		footer_pos = user_config.footer_pos,
 
 		border = user_config.border
 	});

@@ -3,10 +3,39 @@
 --- Configuration for `patterns.nvim`.
 ---@class patterns.config
 ---
----@field keymaps? table
+---@field keymaps? patterns.keymaps
 ---@field windows patterns.windows
 ---@field lua_patterns patterns.lua_patterns
 ---@field regex patterns.regex
+
+---@class patterns.keymaps
+---
+---@field hover table<string, patterns.keymap_opts>
+---@field explain_input table<string, patterns.keymap_opts>
+---@field explain_preview table<string, patterns.keymap_opts>
+
+
+---@alias explain_actions
+---| "toggle" Toggle focus of window.
+---| "mode_change" Switches between the explainer & the matcher.
+---
+--- Changes pattern language backwards.
+---| "lang_prev"
+---| "lang_next" Changes pattern language forwards.
+---
+--- Closes explainer.
+---| "close"
+---| "apply" Applies changes.
+
+
+---@alias hover_actions
+---| "close" Closes hover window.
+---| "edit" Edit pattern.
+
+---@class patterns.keymap_opts
+---
+---@field desc? string
+---@field callback explain_actions | hover_actions | function
 
 
 ---@class patterns.windows
