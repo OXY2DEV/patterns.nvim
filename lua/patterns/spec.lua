@@ -6,6 +6,40 @@ end
 
 ---@type patterns.config
 spec.default = {
+	keymaps = {
+		explain_input = {
+			["<CR>"] = {
+				callback = "apply"
+			},
+			["q"] = {
+				callback = "close"
+			},
+
+			["<tab>"] = {
+				callback = "toggle"
+			},
+
+			["H"] = {
+				callback = "lang_prev"
+			},
+			["L"] = {
+				callback = "lang_next"
+			},
+		},
+		explain_preview = {
+			["q"] = {
+				callback = "close"
+			},
+
+			["<tab>"] = {
+				callback = "toggle"
+			},
+
+			["T"] = {
+				callback = "mode_change"
+			}
+		}
+	},
 	windows = {
 		hover = function (q1, q2)
 			local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" };

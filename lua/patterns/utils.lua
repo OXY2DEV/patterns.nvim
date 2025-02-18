@@ -21,6 +21,29 @@ utils.parser_installed = function (parser_name)
 	return false;
 end
 
+--- Escapes magic characters from a string
+---@param input string
+---@return string
+utils.escape_string = function (input)
+	input = input:gsub("%%", "%%%%");
+
+	input = input:gsub("%(", "%%(");
+	input = input:gsub("%)", "%%)");
+
+	input = input:gsub("%.", "%%.");
+	input = input:gsub("%+", "%%+");
+	input = input:gsub("%-", "%%-");
+	input = input:gsub("%*", "%%*");
+	input = input:gsub("%?", "%%?");
+	input = input:gsub("%^", "%%^");
+	input = input:gsub("%$", "%%$");
+
+	input = input:gsub("%[", "%%[");
+	input = input:gsub("%]", "%%]");
+
+	return input;
+end
+
 --- Get pattern range under cursor.
 --- Returns nil on fail.
 ---@param silent nil | boolean
