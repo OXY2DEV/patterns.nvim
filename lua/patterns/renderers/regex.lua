@@ -170,6 +170,16 @@ regex.__generic = function (buffer, item)
 	---@type integer[] { row_start, col_start, row_end, col_end }
 	local range = item.range;
 
+	---@type pattern_item.opts_static Config table.
+	local config = spec.get({ "regex", item.kind }, {
+		fallback = {},
+		eval_args = { buffer, item }
+	});
+
+	if not config then
+		return;
+	end
+
 	---@type integer Indent size
 	local indent = spec.get({ "regex", "indent_size" }, {
 		fallback = 2,
@@ -183,12 +193,6 @@ regex.__generic = function (buffer, item)
 	---@type string? Indent hl
 	local indent_hl = spec.get({ "regex", "indent_hl" }, {
 		fallback = nil,
-		eval_args = { buffer, item }
-	});
-
-	---@type pattern_item.opts Config table.
-	local config = spec.get({ "regex", item.kind }, {
-		fallback = {},
 		eval_args = { buffer, item }
 	});
 
