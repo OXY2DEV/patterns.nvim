@@ -39,12 +39,12 @@ lua_patterns.tips = {
 	escape_sequence = function (_, item)
 		local seq_maps = {
 			["\\b"]  = "󰌥 This one represents a backspace.",
-			-- ["\\f"]  = "󰌥 This one represents a backspace.",
+			["\\f"]  = "󱂕 This one represents a form feed.",
 			["\\n"]  = "󰌑 This one represents a newlinw.",
 			["\\t"]  = "󰌒 This one represents a tab.",
 			["\\r"]  = "󰌏 This one represents a return carriage.",
-			-- ["\\v"]  = "󰌥 This one represents a backspace.",
-			["\\0"]  = "󰋷 This one represents a null byte.",
+			["\\v"]  = "󰞒 This one represents a vertical tab.",
+			["\\0"]  = "󰋷 This one represents a null character.",
 			["\\\\"] = '󰓾 This one represents a "\\".',
 			["\\'"]  = ' This one represents a "\'".',
 			['\\"']  = " This one represents a '\"'.",
@@ -71,9 +71,9 @@ lua_patterns.tips = {
 		elseif txt == "%A" then
 			table.insert(_l, '"%A" matches anything that\'s not a letter. It\'s equivalent would be: [^a-zA-Z].');
 		elseif txt == "%c" then
-			-- table.insert(_l, '"%c" matches all control characters. It\'s equivalent would be: [^a-zA-Z].');
+			table.insert(_l, '"%c" matches all control characters. It\'s equivalent would be: [\\x00-\\x1F\\x7F].');
 		elseif txt == "%C" then
-			-- table.insert(_l, '"%C" matches anything that\'s not a control character. It\'s equivalent would be: [^a-zA-Z].');
+			table.insert(_l, '"%C" matches anything that\'s not a control character. It\'s equivalent would be: [^\\x00-\\x1F\\x7F].');
 		elseif txt == "%d" then
 			table.insert(_l, '"%d" matches all digits. It\'s equivalent would be: [0-9].');
 		elseif txt == "%D" then
@@ -95,9 +95,9 @@ lua_patterns.tips = {
 		elseif txt == "%U" then
 			table.insert(_l, '"%U" matches anything that\'s not a uppercase letter. It\'s equivalent would be: [^A-Z].');
 		elseif txt == "%w" then
-			-- table.insert(_l, '"%w" matches all alphanumeric characters. It\'s equivalent would be: [^a-zA-Z].');
+			table.insert(_l, '"%w" matches all alphanumeric characters. It\'s equivalent would be: [a-zA-Z0-9].');
 		elseif txt == "%W" then
-			-- table.insert(_l, '"%W" matches anything that\'s not an alphanumeric character. It\'s equivalent would be: [^a-zA-Z].');
+			table.insert(_l, '"%W" matches anything that\'s not an alphanumeric character. It\'s equivalent would be: [^a-zA-Z0-9].');
 		elseif txt == "%x" then
 			table.insert(_l, '"%x" matches all hexadecimal characters. It\'s equivalent would be: [a-fA-F0-9].');
 		elseif txt == "%X" then
@@ -120,6 +120,16 @@ lua_patterns.__generic = function (buffer, item)
 	---@type integer[] { row_start, col_start, row_end, col_end }
 	local range = item.range;
 
+	---@type pattern_item.opts_static Config table.
+	local config = spec.get({ "lua_patterns", item.kind }, {
+		fallback = {},
+		eval_args = { buffer, item }
+	});
+
+	if not config then
+		return;
+	end
+
 	---@type integer Indent size
 	local indent = spec.get({ "lua_patterns", "indent_size" }, {
 		fallback = 2,
@@ -133,12 +143,6 @@ lua_patterns.__generic = function (buffer, item)
 	---@type string? Indent hl
 	local indent_hl = spec.get({ "lua_patterns", "indent_hl" }, {
 		fallback = nil,
-		eval_args = { buffer, item }
-	});
-
-	---@type pattern_item.opts Config table.
-	local config = spec.get({ "lua_patterns", item.kind }, {
-		fallback = {},
 		eval_args = { buffer, item }
 	});
 

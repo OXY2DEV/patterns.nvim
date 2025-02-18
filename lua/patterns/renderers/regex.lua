@@ -85,7 +85,7 @@ regex.tips = {
 		elseif string.match(item.text, "^\\v$") then
 			return "Matches a vertical tab(A whitespace character)."
 		elseif string.match(item.text, "^\\0$") then
-			return "Matches a null byte."
+			return "Matches a null character."
 		else
 			return "Unknown character class."
 		end
