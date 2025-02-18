@@ -186,7 +186,7 @@ regex.__generic = function (buffer, item)
 		eval_args = { buffer, item }
 	});
 
-	---@type table Config table.
+	---@type pattern_item.opts Config table.
 	local config = spec.get({ "regex", item.kind }, {
 		fallback = {},
 		eval_args = { buffer, item }
@@ -203,9 +203,7 @@ regex.__generic = function (buffer, item)
 	vim.api.nvim_buf_set_lines(buffer, -1, -1, false, {
 		table.concat({
 			" ",
-
-			config.text or item.text,
-			config.show_content == true and " " .. item.text or ""
+			config.text or item.text
 		})
 	});
 
@@ -219,7 +217,7 @@ regex.__generic = function (buffer, item)
 
 		virt_text_pos = "right_align",
 		virt_text = config.show_range == true and {
-			{ string.format("[ %d,%d - %d,%d ]", range[1], range[2], range[3], range[4]), utils.set_hl(config.range_hl) }
+			{ string.format("[ %d,%d ] - [ %d,%d ]", range[1], range[2], range[3], range[4]), utils.set_hl(config.range_hl) }
 		} or nil,
 
 		line_hl_group = utils.set_hl(config.text_hl or config.hl),
@@ -233,7 +231,7 @@ regex.__generic = function (buffer, item)
 		eval_args = { buffer, item}
 	});
 
-	if tip and config.show_tip ~= false and (config.always_show_tip == true or item.current) then
+	if tip and config.show_tip ~= false then
 		local lines = utils.to_lines(tip, math.ceil(win_w * 0.8) - (2 * item.level));
 
 		for _, line in ipairs(lines) do
@@ -274,7 +272,7 @@ regex.__generic = function (buffer, item)
 							indent_part(),
 							item.level
 						),
-						utils.set_hl(config.indent_hl)
+						utils.set_hl(indent_hl)
 					}
 				},
 
