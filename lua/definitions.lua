@@ -1,32 +1,148 @@
 ---@meta
 
+---@class patterns.config
+---
+---@field windows patterns.windows
+---@field lua_patterns patterns.lua_patterns
+---@field regex patterns.regex
+
+
+---@class patterns.windows
+---
+---@field hover? table | fun(q1: "left" | "right" | "center", q2: "top" | "bottom" | "center"): table
+---
+---@field input? table | fun(): table
+---@field preview? table | fun(): table
+
+
+---@class patterns.lua_patterns
+---
+---@field indent_size integer
+---@field indent_marker string
+---@field indent_hl? string
+---
+---@field pattern pattern_item.opts
+---
+---@field anchor_start pattern_item.opts
+---@field anchor_end pattern_item.opts
+---
+---@field quantifier_optional pattern_item.opts
+---@field quantifier_minus pattern_item.opts
+---@field quantifier_plus pattern_item.opts
+---@field quantifier_star pattern_item.opts
+---
+---@field literal_character pattern_item.opts
+---@field any_character pattern_item.opts
+---@field escape_sequence pattern_item.opts
+---@field escaped_character pattern_item.opts
+---
+---@field capture_group pattern_item.opts
+---@field character_set pattern_item.opts
+---@field character_set_content pattern_item.opts
+---@field character_range pattern_item.opts
+---@field character_class pattern_item.opts
+
+
+---@class patterns.regex
+---
+---@field indent_size integer
+---@field indent_marker string
+---@field indent_hl? string
+---
+---@field pattern pattern_item.opts
+---@field alternation pattern_item.opts
+---@field term pattern_item.opts
+---
+---@field start_assertion pattern_item.opts
+---@field end_assertion pattern_item.opts
+---@field boundary_assertion pattern_item.opts
+---@field non_boundary_assertion pattern_item.opts
+---@field lookaround_assertion pattern_item.opts
+---
+---@field quantifier_count pattern_item.opts
+---@field quantifier_optional pattern_item.opts
+---@field quantifier_plus pattern_item.opts
+---@field quantifier_star pattern_item.opts
+---
+---@field pattern_character pattern_item.opts
+---@field class_character pattern_item.opts
+---@field any_character pattern_item.opts
+---@field decimal_escape pattern_item.opts
+---@field character_class_escape pattern_item.opts
+---@field unicode_character_escape pattern_item.opts
+---@field unicode_property_value pattern_item.opts
+---@field control_escape pattern_item.opts
+---@field control_letter_escape pattern_item.opts
+---@field identity_escape pattern_item.opts
+---@field backreference_escape pattern_item.opts
+---@field unicode_property_value_expression pattern_item.opts
+---
+---@field character_class pattern_item.opts
+---@field posix_character_class pattern_item.opts
+---@field named_group_backreference pattern_item.opts
+---@field capturing_group pattern_item.opts
+---@field non_capturing_group pattern_item.opts
+---
+---@field flags_group pattern_item.opts
+---@field flags pattern_item.opts
+
 
 ---@class pattern_item.opts
 ---
 --- Can be set to `false` to disable rendering of 
 --- a specific node type.
----@field enable? boolean
+---@field enable? boolean | fun(buffer: integer, item: table): boolean
 ---
---- Can be set to `true` to show the text of a
---- node after the text.
----@field show_content? boolean
+--- Can be set to `true` to show the range of a
+--- node.
+---@field show_range? boolean | fun(buffer: integer, item: table): boolean
+---
+--- Highlight group for the text.
+---@field text_hl? string | fun(buffer: integer, item: table): string?
+---
+--- Text to show for a node.
+---@field text? string | fun(buffer: integer, item: table): string
+---
+--- When set to `true`, shows tooltip for nodes.
+--- By default this only shows tips for the current
+--- node.
+---@field show_tip? boolean | fun(buffer: integer, item: table): boolean
+---
+--- Highlight group for the tooltip text.
+---@field tip_hl? string | fun(buffer: integer, item: table): string
+---
+--- Number of spaces to add before tooltip text.
+--- This is added AFTER the indentation.
+---@field tip_offset? integer | fun(buffer: integer, item: table): integer
+---
+--- Highlight group for the node range.
+---@field range_hl? string | fun(buffer: integer, item: table): string?
+---
+--- Bade highlight group. Used by other *_hl
+--- options when they don't have a value.
+---@field hl? string | fun(buffer: integer, item: table): string?
+
+
+---@class pattern_item.opts_static
+---
+--- Can be set to `false` to disable rendering of 
+--- a specific node type.
+---@field enable? boolean
 ---
 --- Can be set to `true` to show the range of a
 --- node.
 ---@field show_range? boolean
 ---
---- Highlight group for the tooltip text.
+--- Highlight group for the text.
 ---@field text_hl? string
 ---
+--- Text to show for a node.
 ---@field text? string
 ---
 --- When set to `true`, shows tooltip for nodes.
 --- By default this only shows tips for the current
 --- node.
 ---@field show_tip? boolean
----
---- When set to `true` tooltips are always shown.
----@field always_show_tip? boolean
 ---
 --- Highlight group for the tooltip text.
 ---@field tip_hl? string
@@ -36,10 +152,10 @@
 ---@field tip_offset? integer
 ---
 --- Highlight group for the node range.
----@field range_hl? string
+---@field range_hl? string?
 ---
 --- Bade highlight group. Used by other *_hl
 --- options when they don't have a value.
----@field hl? string
+---@field hl? string?
 
 
