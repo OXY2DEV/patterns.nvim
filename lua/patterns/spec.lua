@@ -91,7 +91,7 @@ spec.default = {
 
 	lua_patterns = {
 		indent_size = 2,
-		indent_marker = "╎",
+		indent_marker = "│",
 		indent_hl = "PatternsPalette0Fg",
 
 		pattern = {
@@ -383,7 +383,9 @@ spec.default = {
 		----------------------------------------
 
 		pattern_character = {
-			text = "󱄽 Character:",
+			text = function (_, item)
+				return string.format("󱄽 Character: %s", vim.inspect(item.text));
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
@@ -391,7 +393,9 @@ spec.default = {
 		},
 
 		class_character = {
-			text = "󱄽 Character:",
+			text = function (_, item)
+				return string.format("󱄽 Character: %s", vim.inspect(item.text));
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
@@ -407,7 +411,9 @@ spec.default = {
 		},
 
 		decimal_escape = {
-			text = "󰩈 Decimal escape:",
+			text = function (_, item)
+				return string.format("󰩈 Decimal escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -415,7 +421,9 @@ spec.default = {
 		},
 
 		character_class_escape = {
-			text = "󰩈 Character class escape:",
+			text = function (_, item)
+				return string.format("󰩈 Character class escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -423,7 +431,9 @@ spec.default = {
 		},
 
 		unicode_character_escape = {
-			text = "󰩈 Unicode character escape:",
+			text = function (_, item)
+				return string.format("󰩈 Unicode character escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -431,7 +441,9 @@ spec.default = {
 		},
 
 		unicode_property_value = {
-			text = "󰗊 Unicode property value:",
+			text = function (_, item)
+				return string.format("󰗊 Unicode property value: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
@@ -439,7 +451,9 @@ spec.default = {
 		},
 
 		control_escape = {
-			text = "󰁨 Control character escape:",
+			text = function (_, item)
+				return string.format("󰁨 Control character escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -447,7 +461,9 @@ spec.default = {
 		},
 
 		control_letter_escape = {
-			text = "󰁨 Control letter escape:",
+			text = function (_, item)
+				return string.format("󰁨 Control letter escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -455,7 +471,9 @@ spec.default = {
 		},
 
 		identity_escape = {
-			text = "󰩈 Identity escape:",
+			text = function (_, item)
+				return string.format("󰩈 Identity escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -463,7 +481,9 @@ spec.default = {
 		},
 
 		backreference_escape = {
-			text = "󰒻 Backreference escape:",
+			text = function (_, item)
+				return string.format("󰒻 Backreference escape: %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
@@ -492,7 +512,9 @@ spec.default = {
 		},
 
 		posix_character_class = {
-			text = "󰏗 POSIX Character class:",
+			text = function (_, item)
+				return string.format("󰏗 POSIX Character class: ", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
@@ -500,7 +522,9 @@ spec.default = {
 		},
 
 		named_group_backreference = {
-			text = "󰒻 Named backreference:",
+			text = function (_, item)
+				return string.format("󰒻 Named backreference: ", string.match(item.text, "^%(%?P%=(.-)%)$"));
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
@@ -540,7 +564,9 @@ spec.default = {
 		},
 
 		flags = {
-			text = "󰈻 Flag(s):",
+			text = function (_, item)
+				return string.format("󰈻 Flag(s): %s", item.text);
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
@@ -550,6 +576,16 @@ spec.default = {
 };
 
 spec.config = vim.deepcopy(spec.default);
+
+--- Setup function.
+---@param config patterns.config | nil
+spec.setup = function (config)
+	if type(config) ~= "table" then
+		return;
+	end
+
+	spec.config = vim.tbl_deep_extend("force", spec.config, config);
+end
 
 --- Function to retrieve configuration options
 --- from a config table.
