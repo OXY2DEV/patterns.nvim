@@ -1,9 +1,11 @@
 local spec = {};
 
-spec.default = {
-	regex_filetypes = {},
-	luap_filetypes = { "lua" },
+local on_current = function (_, item)
+	return item.current == true;
+end
 
+---@type patterns.config
+spec.default = {
 	windows = {
 		hover = function (q1, q2)
 			local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" };
@@ -26,7 +28,14 @@ spec.default = {
 				width = math.floor(vim.o.columns * 0.6),
 				height = math.floor(vim.o.lines * 0.5),
 
-				border = border
+				border = border,
+
+				footer_pos = "right",
+				footer = {
+					{ "╸" },
+					{ "󰛪 Patterns" },
+					{ "╺" },
+				}
 			}
 		end
 	},
@@ -38,6 +47,7 @@ spec.default = {
 
 		pattern = {
 			text = "󰐱 Pattern",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0";
@@ -47,6 +57,7 @@ spec.default = {
 
 		anchor_start = {
 			text = "󰾺 From start",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -54,6 +65,7 @@ spec.default = {
 
 		anchor_end = {
 			text = "󰾸 To end",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -63,6 +75,7 @@ spec.default = {
 
 		quantifier_minus = {
 			text = "󰑖 Zero or more times(non-greedily)",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -70,6 +83,7 @@ spec.default = {
 
 		quantifier_optional = {
 			text = "󰑘 Zero or one time",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -77,6 +91,7 @@ spec.default = {
 
 		quantifier_plus = {
 			text = "󰑘 One or more times",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -84,6 +99,7 @@ spec.default = {
 
 		quantifier_star = {
 			text = "󰑖 Zero or more times(greedily)",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -91,7 +107,7 @@ spec.default = {
 
 		----------------------------------------
 
-		character = {
+		literal_character = {
 			text = function (_, item)
 				if item.text == "\\" then
 					return '󱄽 Character: "\\"';
@@ -99,13 +115,15 @@ spec.default = {
 					return string.format("󱄽 Character: %s", vim.inspect(item.text));
 				end
 			end,
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
 		},
 
-		any = {
+		any_character = {
 			text = " Any character",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -115,6 +133,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format('󰩈 Escape sequence: "%s"', item.text);
 			end,
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -124,6 +143,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format('󰩈 Escaped character: "%s"', item.text);
 			end,
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -135,6 +155,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format(" Capture group, 󱤬 %d", item.id or -1);
 			end,
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -142,6 +163,7 @@ spec.default = {
 
 		character_set = {
 			text = "󱉓 Character set",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -149,9 +171,7 @@ spec.default = {
 
 		character_set_content = {
 			text = "󰆦 Character set content,",
-
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -161,9 +181,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format("󰊱 Character range: %s", item.text);
 			end,
-
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -173,9 +191,7 @@ spec.default = {
 			text = function (_, item)
 				return "󰏗 Character class: " .. vim.inspect(item.text);
 			end,
-
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
@@ -185,14 +201,11 @@ spec.default = {
 	regex = {
 		indent_size = 2,
 		indent_marker = "│",
-		indent_hl = "PatternsInputBorder",
+		indent_hl = "PatternsPalette0Fg",
 
 		pattern = {
 			text = "󰛪 Pattern",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0"
@@ -200,10 +213,7 @@ spec.default = {
 
 		alternation = {
 			text = "󰋰 Alternative pattern(s)",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -213,10 +223,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format("󰊲 Regex term(#%d)", item.id or -1);
 			end,
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -225,47 +232,35 @@ spec.default = {
 		----------------------------------------
 
 		start_assertion = {
-			text = "󰀱 From start",
+			text = "󰾺 From start",
+			show_tip = on_current,
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		end_assertion = {
-			text = "󰀱 To end",
+			text = "󰾸 To end",
+			show_tip = on_current,
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		boundary_assertion = {
 			text = "󰕤 Match as a word",
+			show_tip = on_current,
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		non_boundary_assertion = {
 			text = "󰕛 Match as part of a word",
+			show_tip = on_current,
 
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
-			tip_hl = "PatternsPalette3Bg",
-			hl = "PatternsPalette3"
+			tip_hl = "PatternsPalette5Bg",
+			hl = "PatternsPalette5"
 		},
 
 		lookaround_assertion = {
@@ -276,10 +271,7 @@ spec.default = {
 					return "󰡮 Look ahead";
 				end
 			end,
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette3Bg",
 			hl = "PatternsPalette3"
@@ -309,10 +301,7 @@ spec.default = {
 					);
 				end
 			end,
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -320,10 +309,7 @@ spec.default = {
 
 		quantifier_optional = {
 			text = " Repeats zero or one time",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -331,10 +317,7 @@ spec.default = {
 
 		quantifier_plus = {
 			text = " Repeats one or more times",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -342,10 +325,7 @@ spec.default = {
 
 		quantifier_star = {
 			text = " Repeats zero or more times",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
 			hl = "PatternsPalette7"
@@ -355,10 +335,7 @@ spec.default = {
 
 		pattern_character = {
 			text = "󱄽 Character:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -366,10 +343,7 @@ spec.default = {
 
 		class_character = {
 			text = "󱄽 Character:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -377,10 +351,7 @@ spec.default = {
 
 		any_character = {
 			text = " Any character",
-
-			show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -388,10 +359,7 @@ spec.default = {
 
 		decimal_escape = {
 			text = "󰩈 Decimal escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -399,10 +367,7 @@ spec.default = {
 
 		character_class_escape = {
 			text = "󰩈 Character class escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -410,10 +375,7 @@ spec.default = {
 
 		unicode_character_escape = {
 			text = "󰩈 Unicode character escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -421,10 +383,7 @@ spec.default = {
 
 		unicode_property_value = {
 			text = "󰗊 Unicode property value:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette6Bg",
 			hl = "PatternsPalette6"
@@ -432,10 +391,7 @@ spec.default = {
 
 		control_escape = {
 			text = "󰁨 Control character escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -443,10 +399,7 @@ spec.default = {
 
 		control_letter_escape = {
 			text = "󰁨 Control letter escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -454,10 +407,7 @@ spec.default = {
 
 		identity_escape = {
 			text = "󰩈 Identity escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -465,10 +415,7 @@ spec.default = {
 
 		backreference_escape = {
 			text = "󰒻 Backreference escape:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette1Bg",
 			hl = "PatternsPalette1"
@@ -478,11 +425,9 @@ spec.default = {
 
 		unicode_property_value_expression = {
 			text = "󰁀 Unicode property value expression",
+			show_tip = on_current,
 
 			-- show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
-
 			tip_hl = "PatternsPalette0Bg",
 			hl = "PatternsPalette0"
 		},
@@ -491,9 +436,7 @@ spec.default = {
 
 		character_class = {
 			text = "󰏗 Character class",
-
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette4Bg",
 			hl = "PatternsPalette4"
@@ -501,10 +444,7 @@ spec.default = {
 
 		posix_character_class = {
 			text = "󰏗 POSIX Character class:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -512,10 +452,7 @@ spec.default = {
 
 		named_group_backreference = {
 			text = "󰒻 Named backreference:",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -529,10 +466,7 @@ spec.default = {
 					return string.format("󱉶 Capture group(#%d)", item.id or -1);
 				end
 			end,
-
-			-- show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -542,10 +476,7 @@ spec.default = {
 			text = function (_, item)
 				return string.format("󰒉 Non-capture group(#%d)", item.id or -1);
 			end,
-
-			-- show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette5Bg",
 			hl = "PatternsPalette5"
@@ -553,10 +484,7 @@ spec.default = {
 
 		flags_group = {
 			text = "󰂖 Flags group",
-
-			-- show_content = false,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
@@ -564,10 +492,7 @@ spec.default = {
 
 		flags = {
 			text = "󰈻 Flag(s):",
-
-			show_content = true,
-			range_hl = "PatternsInputBorder",
-			indent_hl = "PatternsInputBorder",
+			show_tip = on_current,
 
 			tip_hl = "PatternsPalette2Bg",
 			hl = "PatternsPalette2"
