@@ -9,6 +9,19 @@ hover.au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
 ---@type integer, integer Hover buffer & window.
 hover.buf, hover.win = nil, nil;
 
+hover.actions = {
+	open = hover.hovee,
+	close = function ()
+		hover.au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
+		pcall(vim.api.nvim_win_close, hover.win, true);
+	end,
+
+	edit = function ()
+		hover.actions.close();
+		require("patterns.explain").explain(unpack(hover.data or {}))
+	end
+};
+
 --- `vim.lsp.buf.hover()` but for patterns.
 hover.hover = function ()
 	if hover.win and vim.api.nvim_win_is_valid(hover.win) then
@@ -21,6 +34,9 @@ hover.hover = function ()
 	if not ft or not lines or not range then
 		return;
 	end
+
+	--- Export the data.
+	hover.data = { ft == "LuaPatterns" and "lua_patterns" or "regex", table.concat(lines, ""), range };
 
 	---|fS "Preparation"
 
@@ -89,9 +105,12 @@ hover.hover = function ()
 	));
 
 	local w, h = hover_config.width, math.min(vim.api.nvim_buf_line_count(hover.buf), hover_config.height);
+
+	local relative = "cursor";
 	local row, col;
 
 	if quadrent[1] == "center" then
+		relative = "editor";
 		col = math.floor((vim.o.columns - w) / 2);
 	elseif quadrent[1] == "left" then
 		col = (w * -1) - 1;
@@ -100,11 +119,12 @@ hover.hover = function ()
 	end
 
 	if quadrent[2] == "center" then
+		relative = "editor";
 		row = math.floor((vim.o.lines - h) / 2);
 	elseif quadrent[2] == "top" then
 		row = (h * -1) - 2;
 	else
-		row = 0;
+		row = 1;
 	end
 
 	user_config = spec.get({ "windows", "hover" }, {
@@ -117,7 +137,7 @@ hover.hover = function ()
 	});
 
 	vim.api.nvim_win_set_config(hover.win, {
-		relative = "cursor",
+		relative = relative,
 
 		row = row,
 		col = col,
@@ -132,26 +152,39 @@ hover.hover = function ()
 
 	---|fE
 
-	local function hover_close ()
-		hover.au = vim.api.nvim_create_augroup("patterns.hover", { clear = true });
-		pcall(vim.api.nvim_win_close, hover.win, true);
-	end
+	local keymaps = spec.get({ "keymaps", "hover" }, { fallback = {} });
 
-	vim.api.nvim_buf_set_keymap(hover.buf, "n", "q", "", {
-		callback = function ()
-			hover_close()
+	for lhs, map in pairs(keymaps) do
+		local callback = map.callback;
+
+		if type(callback) == "string" then
+			if hover.actions[callback] then
+				callback = hover.actions[callback];
+			else
+				callback = nil;
+			end
 		end
-	});
+
+		vim.api.nvim_buf_set_keymap(
+			hover.buf,
+			map.mode or "n",
+			lhs,
+			map.rhs or "",
+			{
+				desc = map.desc,
+				callback = callback
+			}
+		);
+	end
 
 	vim.api.nvim_create_autocmd("CursorMoved", {
 		group = hover.au,
-		-- pattern = { tostring(src_win) },
 
 		callback = function ()
 			local win = vim.api.nvim_get_current_win();
 
 			if win ~= hover.win then
-				hover_close();
+				hover.actions.close();
 			end
 		end
 	})

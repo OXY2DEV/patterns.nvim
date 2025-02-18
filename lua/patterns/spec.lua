@@ -38,6 +38,15 @@ spec.default = {
 			["T"] = {
 				callback = "mode_change"
 			}
+		},
+
+		hover = {
+			["q"] = {
+				callback = "close"
+			},
+			["i"] = {
+				callback = "edit"
+			}
 		}
 	},
 	windows = {
