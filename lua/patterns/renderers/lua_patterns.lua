@@ -3,8 +3,10 @@ local lua_patterns = {};
 local spec = require("patterns.spec");
 local utils = require("patterns.utils");
 
+---@type integer Namespace.
 lua_patterns.ns = vim.api.nvim_create_namespace("patterns/lua_patterns");
 
+---@type { [string]: string | fun(buffer: integer, item: __patterns.item): string? }
 lua_patterns.tips = {
 	anchor_start = "Only match if the pattern is at the beginning of the string.",
 	anchor_end = "Only match if the pattern is at the end of the string.",
@@ -114,6 +116,9 @@ lua_patterns.tips = {
 	end,
 }
 
+---@param buffer integer
+---@param item __patterns.item
+---@return nil
 lua_patterns.__generic = function (buffer, item)
 	---|fS
 
@@ -276,6 +281,10 @@ lua_patterns.render = function (buffer, content)
 	return current_line;
 end
 
+--- Clears decorations from a buffer
+---@param buffer integer
+---@param from integer?
+---@param to integer?
 lua_patterns.clear = function (buffer, from, to)
 	vim.api.nvim_buf_clear_namespace(buffer, lua_patterns.ns, from or 0, to or -1);
 end

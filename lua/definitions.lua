@@ -1,7 +1,9 @@
 ---@meta
 
+--- Configuration for `patterns.nvim`.
 ---@class patterns.config
 ---
+---@field keymaps? table
 ---@field windows patterns.windows
 ---@field lua_patterns patterns.lua_patterns
 ---@field regex patterns.regex
@@ -157,5 +159,24 @@
 --- Bade highlight group. Used by other *_hl
 --- options when they don't have a value.
 ---@field hl? string?
+
+
+---@class __patterns.item
+---
+--- Item kind.
+---@field kind string
+---
+--- Is this the current node?
+---@field current boolean
+---
+--- Indentation level for this node.
+---@field level integer
+---
+--- Text inside this node.
+---@field text string
+---
+--- Output of TSNode:range().
+---   [ row_start, col_start, row_end, col_end ]
+---@field range integer[]
 
 

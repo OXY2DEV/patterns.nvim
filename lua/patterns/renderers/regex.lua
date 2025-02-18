@@ -3,8 +3,10 @@ local regex = {};
 local spec = require("patterns.spec");
 local utils = require("patterns.utils");
 
+---@type integer Namespace.
 regex.ns = vim.api.nvim_create_namespace("patterns/regex");
 
+---@type { [string]: string | fun(buffer: integer, item: __patterns.item): string? }
 regex.tips = {
 	pattern = "A regex pattern.",
 	alternation = "Matches any one of the alternative patterns.",
@@ -164,6 +166,9 @@ regex.tips = {
 	end,
 }
 
+---@param buffer integer
+---@param item __patterns.item
+---@return nil
 regex.__generic = function (buffer, item)
 	---|fS
 
@@ -326,6 +331,10 @@ regex.render = function (buffer, content)
 	return current_line;
 end
 
+--- Clears decorations from a buffer
+---@param buffer integer
+---@param from integer?
+---@param to integer?
 regex.clear = function (buffer, from, to)
 	vim.api.nvim_buf_clear_namespace(buffer, regex.ns, from or 0, to or -1);
 end
