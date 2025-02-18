@@ -1,0 +1,8 @@
+patterns.nvim	patterns.txt	/*patterns.nvim*
+patterns.nvim-commands	patterns.txt	/*patterns.nvim-commands*
+patterns.nvim-configuration	patterns.txt	/*patterns.nvim-configuration*
+patterns.nvim-features	patterns.txt	/*patterns.nvim-features*
+patterns.nvim-installation	patterns.txt	/*patterns.nvim-installation*
+patterns.nvim-keymaps	patterns.txt	/*patterns.nvim-keymaps*
+patterns.nvim-requirements	patterns.txt	/*patterns.nvim-requirements*
+patterns.nvim-toc	patterns.txt	/*patterns.nvim-toc*
