@@ -14,10 +14,10 @@ lua_patterns.tips = {
 	quantifier_plus = "Matches a pattern one or more times.\n \n This will match the highest number of repeats.",
 	quantifier_star = "Matches a pattern zero or more times.\n \n This will match the highest number of repeats.",
 
-	character = function (_, item)
+	literal_character = function (_, item)
 		return string.format("Matches %s literally.", vim.inspect(item.text));
 	end,
-	any = "Matches any character.",
+	any_character = "Matches any character.",
 	escaped_character = function (_, item)
 		local _l = {
 			"A character that was escaped.",

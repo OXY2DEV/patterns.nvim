@@ -158,7 +158,7 @@ lua_patterns.any_character = function (buffer, node)
 	end
 
 	return {
-		kind = "any",
+		kind = "any_character",
 		current = node:equal(lua_patterns.current),
 
 		text = text,
@@ -198,7 +198,7 @@ lua_patterns.literal_character = function (buffer, node)
 	end
 
 	return {
-		kind = "character",
+		kind = "literal_character",
 		current = node:equal(lua_patterns.current),
 
 		text = text,
