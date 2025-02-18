@@ -15,6 +15,7 @@
 ---@field explain_preview table<string, patterns.keymap_opts>
 
 
+--- Action names for the explainer.
 ---@alias explain_actions
 ---| "toggle" Toggle focus of window.
 ---| "mode_change" Switches between the explainer & the matcher.
@@ -28,6 +29,7 @@
 ---| "apply" Applies changes.
 
 
+--- Action names for the hover.
 ---@alias hover_actions
 ---| "close" Closes hover window.
 ---| "edit" Edit pattern.
@@ -38,6 +40,8 @@
 ---@field callback explain_actions | hover_actions | function
 
 
+--- Window configurations for various
+--- windows.
 ---@class patterns.windows
 ---
 ---@field hover? table | fun(q1: "left" | "right" | "center", q2: "top" | "bottom" | "center"): table
@@ -46,11 +50,13 @@
 ---@field preview? table | fun(): table
 
 
+--- Options for Lua patterns.
+--- Option name matches the tree-sitter node name.
 ---@class patterns.lua_patterns
 ---
----@field indent_size integer
----@field indent_marker string
----@field indent_hl? string
+---@field indent_size integer Indentation size.
+---@field indent_marker string Marker used for indentation.
+---@field indent_hl? string Highlight group for the indentation markers.
 ---
 ---@field pattern pattern_item.opts
 ---
@@ -74,11 +80,13 @@
 ---@field character_class pattern_item.opts
 
 
+--- Options for Regex.
+--- Option name matches the tree-sitter node name.
 ---@class patterns.regex
 ---
----@field indent_size integer
----@field indent_marker string
----@field indent_hl? string
+---@field indent_size integer Indentation size.
+---@field indent_marker string Marker used for indentation.
+---@field indent_hl? string Highlight group for the indentation markers.
 ---
 ---@field pattern pattern_item.opts
 ---@field alternation pattern_item.opts
@@ -118,40 +126,41 @@
 ---@field flags pattern_item.opts
 
 
+--- Options for each node type.
 ---@class pattern_item.opts
 ---
 --- Can be set to `false` to disable rendering of 
 --- a specific node type.
----@field enable? boolean | fun(buffer: integer, item: table): boolean
+---@field enable? boolean | fun(buffer: integer, item: __patterns.item): boolean
 ---
 --- Can be set to `true` to show the range of a
 --- node.
----@field show_range? boolean | fun(buffer: integer, item: table): boolean
+---@field show_range? boolean | fun(buffer: integer, item: __patterns.item): boolean
 ---
 --- Highlight group for the text.
----@field text_hl? string | fun(buffer: integer, item: table): string?
+---@field text_hl? string | fun(buffer: integer, item: __patterns.item): string?
 ---
 --- Text to show for a node.
----@field text? string | fun(buffer: integer, item: table): string
+---@field text? string | fun(buffer: integer, item: __patterns.item): string
 ---
 --- When set to `true`, shows tooltip for nodes.
 --- By default this only shows tips for the current
 --- node.
----@field show_tip? boolean | fun(buffer: integer, item: table): boolean
+---@field show_tip? boolean | fun(buffer: integer, item: __patterns.item): boolean
 ---
 --- Highlight group for the tooltip text.
----@field tip_hl? string | fun(buffer: integer, item: table): string
+---@field tip_hl? string | fun(buffer: integer, item: __patterns.item): string
 ---
 --- Number of spaces to add before tooltip text.
 --- This is added AFTER the indentation.
----@field tip_offset? integer | fun(buffer: integer, item: table): integer
+---@field tip_offset? integer | fun(buffer: integer, item: __patterns.item): integer
 ---
 --- Highlight group for the node range.
----@field range_hl? string | fun(buffer: integer, item: table): string?
+---@field range_hl? string | fun(buffer: integer, item: __patterns.item): string?
 ---
 --- Bade highlight group. Used by other *_hl
 --- options when they don't have a value.
----@field hl? string | fun(buffer: integer, item: table): string?
+---@field hl? string | fun(buffer: integer, item: __patterns.item): string?
 
 
 ---@class pattern_item.opts_static
@@ -190,10 +199,15 @@
 ---@field hl? string?
 
 
+--- Parsed version of a tree-sitter mode.
 ---@class __patterns.item
 ---
 --- Item kind.
 ---@field kind string
+---
+--- Some nodes(e.g. capture groups) have an id
+--- to distinguish between each others.
+---@field id? integer
 ---
 --- Is this the current node?
 ---@field current boolean
