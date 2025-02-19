@@ -1,4 +1,5 @@
 local patterns = {};
+
 local spec = require("patterns.spec");
 local utils = require("patterns.utils");
 
@@ -26,31 +27,52 @@ end
 
 patterns.actions = {
 	hover = function ()
-		---|fS
+		local available_parsers = { "lua_patterns", "regex" };
 
-		hover.hover();
+		available_parsers = vim.tbl_filter(function (parser)
+			return utils.parser_installed(parser);
+		end, available_parsers);
 
-		---|fE
+		if #available_parsers == 0 then
+			vim.api.nvim_echo({
+				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+				{ ": ", "Comment" },
+				{ "Looks like you don't have the necessary parsers installed! See README.", "Comment" },
+			}, true, {})
+			return;
+		else
+			hover.hover();
+		end
 	end,
 
 	explain = function ()
 		local ft, lines, range = utils.create_pattern_range(true);
 
-		if not ft or not lines or not range then
-			explain.explain();
+		local available_parsers = { "lua_patterns", "regex" };
+
+		available_parsers = vim.tbl_filter(function (parser)
+			return utils.parser_installed(parser);
+		end, available_parsers);
+
+		if #available_parsers == 0 then
+			vim.api.nvim_echo({
+				{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+				{ ": ", "Comment" },
+				{ "Looks like you don't have the necessary parsers installed! See README.", "Comment" },
+			}, true, {})
 			return;
+		elseif vim.list_contains(available_parsers, ft) == false then
+			explain.explain(available_parsers[1], lines, range);
+		else
+			explain.explain(ft, lines, range);
 		end
-
-		local r_map = {
-			LuaPatterns = "lua_patterns",
-			RegexPatterns = "regex"
-		}
-
-		explain.explain(r_map[ft] or "lua_patterns", lines, range);
 	end
 };
 
+--- Main setup function.
+---@param user_config patterns.config | nil
 patterns.setup = function (user_config)
+	spec.setup(user_config);
 end
 
 return patterns;
