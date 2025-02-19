@@ -34,7 +34,7 @@ A simple & bare-bones pattern explainer & editor for Neovim.
 - Tree-sitter parser.
 
     + `regex`(install through `nvim-treesitter` via `:TSInstall regex`)
-    + `lua_patterns`(optional, See [parser installation](#-parser-installation)).
+    + `lua_patterns`(optional, See [parser installation](https://github.com/OXY2DEV/tree-sitter-lua_patterns?tab=readme-ov-file#-installation)).
 
 - A tree-sitter supported colorscheme(optional).
 - A nerd font.
@@ -98,7 +98,7 @@ Tagged releases can be found in the [release page](https://github.com/OXY2DEV/pa
 
 ## 🧭 Configuration
 
-See the default configuration [here](hello).
+See the default configuration [here](https://github.com/OXY2DEV/patterns.nvim/blob/main/lua/patterns/spec.lua#L8-L582).
 
 <details>
     <summary>Show type definitions</summary>
