@@ -28,6 +28,7 @@ hover.hover = function ()
 		return;
 	end
 
+	local cursor = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win());
 	local ft, lines, range = utils.create_pattern_range();
 	local available_parsers = { "lua_patterns", "regex" };
 
@@ -101,10 +102,18 @@ hover.hover = function ()
 		vim.api.nvim_win_set_config(hover.win, hover_config);
 	end
 
+	--- This is the relative cursor position inside
+	--- the pattern.
+	--- Used to get the correct current node.
+	pcall(vim.api.nvim_win_set_cursor, hover.win,{
+		cursor[1] - range[1],
+		cursor[2] - range[2]
+	});
+
 	local content = require("patterns.parser").parse(hover.buf);
 	vim.api.nvim_buf_set_lines(hover.buf, 0, -1, false, {});
 
-	require("patterns.renderer").render(hover.buf, content);
+	local _l = require("patterns.renderer").render(hover.buf, content);
 
 	vim.bo[hover.buf].modifiable = false;
 
@@ -165,6 +174,14 @@ hover.hover = function ()
 		footer_pos = user_config.footer_pos,
 
 		border = user_config.border
+	});
+
+	--- Change the cursor position again so that
+	--- the current node doesn't go outside of
+	--- the visible window.
+	pcall(vim.api.nvim_win_set_cursor, hover.win,{
+		_l,
+		0
 	});
 
 	---|fE
