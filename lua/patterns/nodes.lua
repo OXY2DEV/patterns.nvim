@@ -5,31 +5,31 @@ node.angular = node.html_tags;
 node.astro = node.html_tags;
 
 node.awk = {
-	RegexPatterns = { "regex" },
+	regex = { "regex" },
 };
 
 node.bash = {
-	RegexPatterns = { "regex" },
+	regex = { "regex" },
 };
 
 node.bitbake = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.ecma = {
-	RegexPatterns = { "regex_pattern" },
+	regex = { "regex_pattern" },
 };
 
 node.elixir = {
-	RegexPatterns = { "quoted_content" },
+	regex = { "quoted_content" },
 };
 
 node.fennel = {
-	LuaPatterns = { "string_content" },
+	lua_patterns = { "string_content" },
 };
 
 node.foam = {
-	RegexPatterns = { "string_literal" },
+	regex = { "string_literal" },
 };
 
 node.glimmer_javascript = node.ecma;
@@ -37,106 +37,106 @@ node.glimmer_javascript = node.ecma;
 node.glimmer_typescript = node.ecma;
 
 node.go = {
-	RegexPatterns = { "raw_string_literal_content", "interpreted_string_literal_content" },
+	regex = { "raw_string_literal_content", "interpreted_string_literal_content" },
 };
 
 node.hare = {
-	RegexPatterns = { "string_content", "raw_string_content" },
+	regex = { "string_content", "raw_string_content" },
 };
 
 node.helm = {
-	RegexPatterns = { "interpreted_string_literal" },
+	regex = { "interpreted_string_literal" },
 };
 
 node.html_tags = {
-	RegexPatterns = { "attribute_value" },
+	regex = { "attribute_value" },
 };
 
 node.javascript = node.ecma;
 
 node.jq = {
-	RegexPatterns = { "string" },
+	regex = { "string" },
 };
 
 node.julia = {
-	RegexPatterns = { "string" },
+	regex = { "string" },
 };
 
 node.just = {
-	RegexPatterns = { "string" },
+	regex = { "string" },
 };
 
 node.kotlin = {
-	RegexPatterns = { "string_literal" },
+	regex = { "string_literal" },
 };
 
 node.lalrpop = {
-	RegexPatterns = { "regex_literal" },
+	regex = { "regex_literal" },
 };
 
 node.lua = {
-	LuaPatterns = { "string_content" },
+	lua_patterns = { "string_content" },
 };
 
 node.luau = {
-	LuaPatterns = { "string" },
+	lua_patterns = { "string" },
 };
 
 node.muttrc = {
-	RegexPatterns = { "regex" },
+	regex = { "regex" },
 };
 
 node.nim = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.nix = {
-	RegexPatterns = { "string_fragment" },
+	regex = { "string_fragment" },
 };
 
 node.php_only = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.php = node.php_only;
 
 node.powershell = {
-	RegexPatterns = { "string_literal" },
+	regex = { "string_literal" },
 };
 
 node.promql = {
-	RegexPatterns = { "label_value" },
+	regex = { "label_value" },
 };
 
 node.puppet = {
-	RegexPatterns = { "regex" },
+	regex = { "regex" },
 };
 
 node.python = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.qmljs = node.ecma;
 
 node.query = {
-	RegexPatterns = { "string_content" },
-	LuaPatterns = { "string_content" },
+	regex = { "string_content" },
+	lua_patterns = { "string_content" },
 };
 
 node.rescript = {
-	RegexPatterns = { "expression_statement" },
+	regex = { "expression_statement" },
 };
 
 node.ruby = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.rust = {
-	RegexPatterns = { "string_content" },
+	regex = { "string_content" },
 };
 
 node.snakemake = {
-	RegexPatterns = { "constraint" },
+	regex = { "constraint" },
 };
 
 node.templ = node.go;
@@ -146,27 +146,27 @@ node.tsx = node.ecma;
 node.typescript = node.ecma;
 
 node.v = {
-	RegexPatterns = { "raw_string_literal" },
+	regex = { "raw_string_literal" },
 };
 
 node.vim = {
-	RegexPatterns = { "pattern" },
+	regex = { "pattern" },
 };
 
 node.vrl = {
-	RegexPatterns = { "regex" },
+	regex = { "regex" },
 };
 
 node.wing = {
-	RegexPatterns = { "string" },
+	regex = { "string" },
 };
 
 node.yang = {
-	RegexPatterns = { "string" },
+	regex = { "string" },
 };
 
 node.yuck = {
-	RegexPatterns = { "string_fragment" },
+	regex = { "string_fragment" },
 };
 
 --- Gets the pattern filetype.

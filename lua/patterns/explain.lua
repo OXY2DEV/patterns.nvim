@@ -499,6 +499,10 @@ explain.actions = {
 	lang_next = function ()
 		local keys = vim.tbl_keys(explain.supported_fts);
 
+		keys = vim.tbl_filter(function (val)
+			return utils.parser_installed(val);
+		end, keys);
+
 		for i, item in ipairs(keys) do
 			if item == explain.usr_ft then
 				if (i + 1) > #keys then
@@ -523,6 +527,10 @@ explain.actions = {
 	end,
 	lang_prev = function ()
 		local keys = vim.tbl_keys(explain.supported_fts);
+
+		keys = vim.tbl_filter(function (val)
+			return utils.parser_installed(val);
+		end, keys);
 
 		for i, item in ipairs(keys) do
 			if item == explain.usr_ft then

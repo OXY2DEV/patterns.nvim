@@ -29,13 +29,27 @@ hover.hover = function ()
 	end
 
 	local ft, lines, range = utils.create_pattern_range();
+	local available_parsers = { "lua_patterns", "regex" };
+
+	available_parsers = vim.tbl_filter(function (parser)
+		return utils.parser_installed(parser);
+	end, available_parsers);
 
 	if not ft or not lines or not range then
 		return;
+	elseif #available_parsers == 0 then
+		vim.api.nvim_echo({
+			{ " 󰑑 patterns.nvim ", "DiagnosticVirtualTextInfo" },
+			{ ": ", "Comment" },
+			{ "Looks like you don't have the necessary parsers installed! See README.", "Comment" },
+		}, true, {})
+		return;
+	elseif vim.list_contains(available_parsers, ft) == false then
+		ft = available_parsers[1];
 	end
 
 	--- Export the data.
-	hover.data = { ft == "LuaPatterns" and "lua_patterns" or "regex", table.concat(lines, ""), range };
+	hover.data = { ft, table.concat(lines, ""), range };
 
 	---|fS "Preparation"
 

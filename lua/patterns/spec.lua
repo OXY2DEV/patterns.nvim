@@ -67,10 +67,16 @@ spec.default = {
 				end
 			end
 
-			local ft;
+			local ft = "Patterns";
 
 			if package.loaded["patterns.hover"] and package.loaded["patterns.hover"].buf then
-				ft = vim.bo[package.loaded["patterns.hover"].buf].ft;
+				local _ft = vim.bo[package.loaded["patterns.hover"].buf].ft;
+				local r_map = {
+					regex = "Regex",
+					lua_patterns = "LuaPatterns"
+				};
+
+				ft = r_map[_ft] or "Patterns";
 			end
 
 			return {
@@ -82,7 +88,7 @@ spec.default = {
 				footer_pos = "right",
 				footer = {
 					{ "╸", "FloatBorder" },
-					{ " 󰛪 " .. (ft or "Patterns") .. " ", "FloatBorder" },
+					{ " 󰛪 " .. ft .. " ", "FloatBorder" },
 					{ "╺", "FloatBorder" },
 				}
 			}

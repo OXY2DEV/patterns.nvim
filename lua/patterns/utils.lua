@@ -13,7 +13,7 @@ utils.parser_installed = function (parser_name)
 	elseif parsers.has_parser(parser_name) == true then
 		--- Parser installed via `nvim-treesitter`.
 		return true;
-	elseif pcall(vim.treesitter.query.get, parser_name, "highlights") ~= nil then
+	elseif pcall(vim.treesitter.query.get, parser_name, "highlights") == true then
 		--- Parser installed manually.
 		return true;
 	end
