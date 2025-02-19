@@ -228,7 +228,13 @@ spec.default = {
 		},
 
 		character_set = {
-			text = "󱉓 Character set",
+			text = function (_, item)
+				if string.match(item.text, "^%[%^") then
+					return "󱋍 Negated character set";
+				else
+					return "󱉓 Character set";
+				end
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette3Bg",

@@ -60,7 +60,13 @@ lua_patterns.tips = {
 		}, "\n");
 	end,
 
-	character_set = "Matches characters from a set of matches.",
+	character_set = function (_, item)
+		if string.match(item.text, "^%[%^") then
+			return "Matches characters that aren't part of this set.";
+		else
+			return "Matches characters that are part of this set.";
+		end
+	end,
 	-- character_set_content = "Set of matches.",
 	capture_group = "A pattern group to be used for various string operations.",
 	character_range = "Matches character within the given range.",
@@ -89,9 +95,9 @@ lua_patterns.tips = {
 		elseif txt == "%P" then
 			table.insert(_l, '"%P" matches anything that\'s not a punctuation symbol. It\'s equivalent would be: [^a-z].');
 		elseif txt == "%s" then
-			table.insert(_l, '"%p" matches all whitespace characters. It\'s equivalent would be: [ \\t\\n\\r].');
+			table.insert(_l, '"%s" matches all whitespace characters. It\'s equivalent would be: [ \\t\\n\\r].');
 		elseif txt == "%S" then
-			table.insert(_l, '"%P" matches anything that\'s not a punctuation symbol. It\'s equivalent would be: [^ \\t\\n\\r].');
+			table.insert(_l, '"%S" matches anything that\'s not a whitespace character. It\'s equivalent would be: [^ \\t\\n\\r].');
 		elseif txt == "%u" then
 			table.insert(_l, '"%u" matches all uppercase letters. It\'s equivalent would be: [A-Z].');
 		elseif txt == "%U" then
@@ -105,9 +111,9 @@ lua_patterns.tips = {
 		elseif txt == "%X" then
 			table.insert(_l, '"%X" matches anything that\'s not an hexadecimal character. It\'s equivalent would be: [^a-fA-F0-9].');
 		elseif txt == "%z" then
-			table.insert(_l, '"%x" matches the null byte. It\'s equivalent would be: [\\0].');
+			table.insert(_l, '"%x" matches the null character. It\'s equivalent would be: [\\0].');
 		elseif txt == "%Z" then
-			table.insert(_l, '"%Z" matches anything that\'s not a null byte. It\'s equivalent would be: [^\\0].');
+			table.insert(_l, '"%Z" matches anything that\'s not a null character. It\'s equivalent would be: [^\\0].');
 		else
 			table.remove(_l, 2);
 		end
