@@ -47,7 +47,7 @@ explain.__pos = nil;
 explain.__layout_float = function (ft)
 	---|fS
 
-	local input_spec = spec.get({ "windows", "input" }, {
+	local input_spec = spec.get({ "windows", "explain_input" }, {
 		fallback = {
 			width = math.floor(vim.o.columns * 0.6),
 			height = 1,
@@ -56,7 +56,7 @@ explain.__layout_float = function (ft)
 		}
 	});
 
-	local preview_spec = spec.get({ "windows", "preview" }, {
+	local preview_spec = spec.get({ "windows", "explain_preview" }, {
 		fallback = {
 			width = math.floor(vim.o.columns * 0.6),
 			height = 15,
@@ -108,12 +108,12 @@ explain.__layout_float = function (ft)
 			{ " " },
 			{
 				" 󰂖 Explain ",
-				explain.mode == 1 and (preview_spec.active_hl or "PatternsPalette7") or (input_spec.inactive_hl or "PatternsPalette0")
+				explain.mode == 1 and (preview_spec.active_hl or "PatternsPalette7") or (preview_spec.inactive_hl or "PatternsPalette0")
 			},
 			{ " " },
 			{
 				" 󰄺 Match ",
-				explain.mode == 2 and (preview_spec.active_hl or "PatternsPalette7") or (input_spec.inactive_hl or "PatternsPalette0")
+				explain.mode == 2 and (preview_spec.active_hl or "PatternsPalette7") or (preview_spec.inactive_hl or "PatternsPalette0")
 			},
 			{ " " },
 		}
@@ -147,7 +147,7 @@ end
 explain.__layout_split = function (ft)
 	---|fS
 
-	local input_spec = spec.get({ "windows", "input" }, {
+	local input_spec = spec.get({ "windows", "explain_input" }, {
 		fallback = {
 			width = math.floor(vim.o.columns * 0.6),
 			height = 1,
@@ -157,7 +157,7 @@ explain.__layout_split = function (ft)
 		}
 	});
 
-	local preview_spec = spec.get({ "windows", "preview" }, {
+	local preview_spec = spec.get({ "windows", "explain_preview" }, {
 		fallback = {
 			width = math.floor(vim.o.columns * 0.6),
 			height = 15,
@@ -213,11 +213,11 @@ explain.__layout_split = function (ft)
 		"%#Normal#",
 		"%=",
 		" ",
-		explain.mode == 1 and (preview_spec.active_hl or "%#PatternsPalette7#") or (input_spec.inactive_hl or "%#PatternsPalette0#"),
+		explain.mode == 1 and (preview_spec.active_hl or "%#PatternsPalette7#") or (preview_spec.inactive_hl or "%#PatternsPalette0#"),
 		" 󰂖 Explain ",
 		"%#Normal#",
 		" ",
-		explain.mode == 2 and (preview_spec.active_hl or "%#PatternsPalette7#") or (input_spec.inactive_hl or "%#PatternsPalette0#"),
+		explain.mode == 2 and (preview_spec.active_hl or "%#PatternsPalette7#") or (preview_spec.inactive_hl or "%#PatternsPalette0#"),
 		" 󰄺 Match ",
 		" ",
 	});
@@ -250,6 +250,9 @@ explain.update_winpos = function ()
 	else
 		explain.__layout_split(explain.supported_fts[explain.usr_ft or "lua_patterns"])
 	end
+
+	vim.wo[explain.preview_win].scrolloff = 999;
+	vim.wo[explain.preview_win].sidescrolloff = 999;
 
 	if vim.list_contains({ explain.input_win, explain.preview_win }, vim.api.nvim_get_current_win()) == false then
 		vim.api.nvim_set_current_win(explain.input_win);
@@ -436,9 +439,10 @@ explain.render = function ()
 	vim.api.nvim_buf_set_lines(explain.preview_buf, 0, -1, false, {});
 
 	local content = require("patterns.parser").parse(explain.input_buf);
-	require("patterns.renderer").render(explain.preview_buf, content);
+	local _c = require("patterns.renderer").render(explain.preview_buf, content);
 
 	vim.bo[explain.preview_buf].modifiable = false;
+	pcall(vim.api.nvim_win_set_cursor, explain.preview_win, { _c, 0 });
 end
 
 explain.clear = function ()

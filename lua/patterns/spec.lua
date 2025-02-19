@@ -92,6 +92,17 @@ spec.default = {
 					{ "╺", "FloatBorder" },
 				}
 			}
+		end,
+		explain_preview = function ()
+			return {
+				active_hl = "PatternsPalette7Fg",
+				inactive_hl = "PatternsPalette0Fg",
+
+				width = math.floor(vim.o.columns * 0.6),
+				height = 15,
+
+				border = "rounded"
+			};
 		end
 	},
 
