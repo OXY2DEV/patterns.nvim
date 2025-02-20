@@ -24,8 +24,6 @@ A simple pattern explainer & editor for Neovim.
 
 ## ✨ Features
 
-- Node.js(optional, needed if you use javascript's regexp).
-
 - Tree-sitter based pattern explainer.
 - LSP-like hover window for strings.
 - A real-time pattern editor & matcher.
@@ -45,6 +43,8 @@ A simple pattern explainer & editor for Neovim.
 
 - A tree-sitter supported colorscheme(optional).
 - A nerd font.
+
+- Node.js(optional, needed if you use javascript's regexp).
 
 ## 📐 Installation
 
