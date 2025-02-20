@@ -6,6 +6,9 @@ end
 
 ---@type patterns.config
 spec.default = {
+	preferred_regex_matcher = "vim",
+	update_delay = 150,
+
 	keymaps = {
 		explain_input = {
 			["<CR>"] = {

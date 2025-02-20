@@ -3,6 +3,16 @@
 --- Configuration for `patterns.nvim`.
 ---@class patterns.config
 ---
+--- WARNING, This just changes the priority
+--- of the matchers.
+--- Both matchers will be tried!
+---@field preferred_regex_matcher
+---| "node" Allows matching Javascript's regexp.
+---| "vim" Allows matching Vim's regexp.
+---
+--- Delay for updating explainer UI.
+---@field update_delay integer
+---
 ---@field keymaps? patterns.keymaps
 ---@field windows patterns.windows
 ---@field lua_patterns patterns.lua_patterns

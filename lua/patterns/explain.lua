@@ -274,10 +274,55 @@ explain.supported_fts = {
 explain.matcher = {
 	regex = function ()
 		local input = table.concat(vim.api.nvim_buf_get_lines(explain.input_buf, 0, -1, false), "");
+		local prefer_regex_matcher = spec.get({ "preferred_regex_matcher" }, { fallback = "vim" });
+
+		--- Matcher using Node.js
+		---@param text string
+		---@return string[] | nil
+		local function node_matcher (text)
+			if vim.fn.executable("node") ~= 1 then
+				return;
+			end
+
+			local _o = vim.fn.system({
+				"node",
+				"-e",
+				string.format("console.log(JSON.stringify(%s.match(/%s/)))", vim.inspect(text or ""), input)
+			});
+			local can_decode, decoded = pcall(vim.fn.json_decode, _o);
+
+			if can_decode == false or decoded == vim.NIL then
+				return;
+			end
+
+			if #decoded > 1 then
+				table.remove(decoded, 1);
+			end
+
+			return decoded;
+		end
+
+		--- Matcher using Vim's regex.
+		---@param text string
+		---@return string[] | nil
+		local function vim_matcher (text)
+			if pcall(vim.fn.matchlist, text, input) == false then
+				return;
+			end
+
+			local filtered = vim.tbl_filter(function (val)
+				return val ~= "";
+			end, vim.fn.matchlist(text, input));
+
+			if #filtered == 1 then
+				return filtered;
+			else
+				table.remove(filtered, 1);
+				return filtered;
+			end
+		end
 
 		if input == "" then
-			return;
-		elseif pcall(vim.fn.matchlist, "lorem ipsum", input) == false then
 			return;
 		end
 
@@ -289,15 +334,18 @@ explain.matcher = {
 				goto continue;
 			end
 
-			local matches = vim.fn.matchlist(line, input) or {};
+			local matches;
+
+			if prefer_regex_matcher == "node" then
+				matches = node_matcher(line) or vim_matcher(line) or {};
+			else
+				matches = vim_matcher(line) or node_matcher(line) or {};
+			end
+
 			local _v = {};
 
 			local _line = line;
 			local offset = 0;
-
-			matches = vim.tbl_filter(function (val)
-				return val ~= "" and val ~= line;
-			end, matches);
 
 			for m, match in ipairs(matches) do
 				local col_start, col_end = string.find(_line, match, 1, true);
@@ -360,6 +408,8 @@ explain.matcher = {
 
 		for l, line in ipairs(vim.api.nvim_buf_get_lines(explain.preview_buf, 0, -1, false)) do
 			if string.match(line, "^%s*$") then
+				goto continue;
+			elseif pcall(string.match, line, input) == false then
 				goto continue;
 			end
 
@@ -612,6 +662,9 @@ explain.explain = function (ft, text, range, mode, buffer)
 		end
 	});
 
+	---@type integer
+	local delay = spec.get({ "update_delay" }, { fallback = 200 });
+
 	local input_timer = vim.uv.new_timer();
 
 	vim.api.nvim_create_autocmd({
@@ -623,7 +676,7 @@ explain.explain = function (ft, text, range, mode, buffer)
 
 		callback = function ()
 			input_timer:stop();
-			input_timer:start(60, 0, vim.schedule_wrap(function ()
+			input_timer:start(delay, 0, vim.schedule_wrap(function ()
 				if explain.mode == 1 then
 					explain.clear();
 					explain.render();
@@ -645,7 +698,7 @@ explain.explain = function (ft, text, range, mode, buffer)
 
 		callback = function ()
 			preview_timer:stop();
-			preview_timer:start(60, 0, vim.schedule_wrap(function ()
+			preview_timer:start(delay, 0, vim.schedule_wrap(function ()
 				if explain.mode == 2 then
 					explain.matcher.init();
 				end
