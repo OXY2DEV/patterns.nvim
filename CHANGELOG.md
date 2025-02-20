@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/OXY2DEV/patterns.nvim/compare/v1.0.0...v2.0.0) (2025-02-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Added support for JS regexp matcher
+
+### Features
+
+* Added support for JS regexp matcher ([c86d755](https://github.com/OXY2DEV/patterns.nvim/commit/c86d7552a6f3a404569be8a6dc6cd2f756db5a2f)), closes [#6](https://github.com/OXY2DEV/patterns.nvim/issues/6)
+
+
+### Bug Fixes
+
+* **renderer-lua_patterns:** Fixed description of some character classes ([7b0be23](https://github.com/OXY2DEV/patterns.nvim/commit/7b0be231071a83d3ea01cc0bdeead03db9867eb8)), closes [#2](https://github.com/OXY2DEV/patterns.nvim/issues/2)
+
 ## 1.0.0 (2025-02-19)
 
 
