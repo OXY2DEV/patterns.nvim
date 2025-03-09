@@ -105,7 +105,7 @@ Tagged releases can be found in the [release page](https://github.com/OXY2DEV/pa
 
 ## 🧭 Configuration
 
-See the default configuration [here](https://github.com/OXY2DEV/patterns.nvim/blob/main/lua/patterns/spec.lua#L8-L582).
+See the default configuration [here](https://github.com/OXY2DEV/patterns.nvim/blob/main/lua/patterns/spec.lua#L8-#L602).
 
 <details>
     <summary>Show type definitions</summary>
