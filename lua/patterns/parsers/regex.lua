@@ -144,14 +144,12 @@ end
 ------------------------------------------------------------------------------
 
 regex.count_quantifier = function (buffer, node)
-	local text = vim.treesitter.get_node_text(node, buffer):match("^%{(.-)%}$");
-
 	return {
 		kind = "quantifier_count",
 		current = node:equal(regex.current),
 		level = regex.level + 1,
 
-		text = text,
+		text = vim.treesitter.get_node_text(node, buffer),
 		range = { node:range() }
 	};
 end
@@ -181,6 +179,17 @@ end
 regex.zero_or_more = function (buffer, node)
 	return {
 		kind = "quantifier_star",
+		current = node:equal(regex.current),
+		level = regex.level + 1,
+
+		text = vim.treesitter.get_node_text(node, buffer),
+		range = { node:range() }
+	};
+end
+
+regex.lazy = function (buffer, node)
+	return {
+		kind = "lazy",
 		current = node:equal(regex.current),
 		level = regex.level + 1,
 

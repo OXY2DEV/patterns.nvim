@@ -32,30 +32,94 @@ regex.tips = {
 		end
 	end,
 
+
 	quantifier_count = function (_, item)
-		if string.match(item.text, "^%d+$") then
-			return string.format("Matches a pattern exactly %s times.", item.text);
-		elseif string.match(item.text, "^%d+,$") then
+		---|fS
+
+		local is_lazy = string.match(item.text, "%?$") ~= nil;
+		local desc;
+
+		if is_lazy then
+			desc = "This will match as few times as possible(that successfully matches)."
+		else
+			desc = "This will match as many times as possible."
+		end
+
+		if string.match(item.text, "%{(%d+)%}") then
 			return string.format(
-				"Matches a pattern at least %s times.\n \n This will match the highest number of occurrences.",
-				string.match(item.text, "^(%d+)")
+				"Matches a pattern exactly %s times.",
+				string.match(item.text, "^%{(%d+)%}")
 			);
-		elseif string.match(item.text, "^,%d+$") then
+		elseif string.match(item.text, "^%{(%d+),%}") then
 			return string.format(
-				"Matches a pattern at most %s times.\n \n This will match the highest number of occurrences.",
-				string.match(item.text, "^,(%d+)$")
+				"Matches a pattern at least %s times. \n \n " .. desc,
+				string.match(item.text, "^%{(%d+),%}")
+			);
+		elseif string.match(item.text, "^%{,(%d+)%}") then
+			return string.format(
+				"Matches a pattern at most %s times. \n \n " .. desc,
+				string.match(item.text, "^%{,(%d+)%}")
 			);
 		else
 			return string.format(
-				"Matches a pattern between %s & %s times.\n \n This will match the highest number of occurrences.",
-				string.match(item.text, "^(%d+),"),
-				string.match(item.text, "^%d+,(%d+)$")
+				"Matches a pattern between %s & %s times. \n \n " .. desc,
+				string.match(item.text, "^%{(%d+),%d+%}"),
+				string.match(item.text, "^%{%d+,(%d+)%}")
 			);
 		end
+
+		---|fE
 	end,
-	quantifier_optional = "Matches a pattern zero or one time.",
-	quantifier_plus = "Matches a pattern one or more times.\n \n This will match the highest number of occurrences.",
-	quantifier_star = "Matches a pattern zero or more times.\n \n This will match the highest number of occurrences.",
+	quantifier_optional = function (_, item)
+		---|fS
+
+		local is_lazy = string.match(item.text, "%?$") ~= nil;
+		local desc;
+
+		if is_lazy then
+			desc = "This will match as few times as possible(that successfully matches)."
+		else
+			desc = "This will match as many times as possible."
+		end
+
+		return "Matches a pattern zero or one time. \n \n" .. desc;
+
+		---|fE
+	end,
+	quantifier_plus = function (_, item)
+		---|fS
+
+		local is_lazy = string.match(item.text, "%?$") ~= nil;
+		local desc;
+
+		if is_lazy then
+			desc = "This will match as few times as possible(that successfully matches)."
+		else
+			desc = "This will match as many times as possible."
+		end
+
+		return "Matches a pattern one or more times.\n \n " .. desc;
+
+		---|fE
+	end,
+	quantifier_star = function (_, item)
+		---|fS
+
+		local is_lazy = string.match(item.text, "%?$") ~= nil;
+		local desc;
+
+		if is_lazy then
+			desc = "This will match as few times as possible(that successfully matches)."
+		else
+			desc = "This will match as many times as possible."
+		end
+
+		return "Matches a pattern zero or more times.\n \n " .. desc;
+
+		---|fE
+	end,
+
+	lazy = "Makes the quantifier lazy(non-greedy).",
 
 
 	pattern_character = function (_, item)
@@ -237,7 +301,7 @@ regex.__generic = function (buffer, item)
 	local win_w = vim.api.nvim_win_get_width(utils.win_findbuf(buffer));
 	local tip = spec.get({ item.kind }, {
 		source = regex.tips,
-		eval_args = { buffer, item}
+		args = { buffer, item },
 	});
 
 	if tip and config.show_tip ~= false then
@@ -322,7 +386,7 @@ regex.render = function (buffer, content)
 		local can_render, data = pcall(regex.__generic, buffer, entry);
 
 		if can_render == false then
-			vim.print(data);
+			-- vim.print(data);
 		elseif entry.current then
 			current_line = data;
 		end

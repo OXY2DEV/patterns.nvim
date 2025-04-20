@@ -356,23 +356,27 @@ spec.default = {
 
 		quantifier_count = {
 			text = function (_, item)
-				if string.match(item.text, "^%d+$") then
-					return string.format(" Repeats exactly %s times", item.text);
-				elseif string.match(item.text, "^%d+,$") then
+				local is_lazy = string.match(item.text, "%?$") ~= nil;
+
+				if string.match(item.text, "%{(%d+)%}") then
+					return string.format(" Repeats exactly %s times", string.match(item.text, "%{(%d+)%}"));
+				elseif string.match(item.text, "^%{(%d+),%}") then
 					return string.format(
-						" Repeats at least %s times",
-						string.match(item.text, "^(%d+)")
+						" Repeats at least %s times(%s)",
+						string.match(item.text, "^%{(%d+),%}"),
+						is_lazy and "Lazy" or "Greedy"
 					);
-				elseif string.match(item.text, "^,%d+$") then
+				elseif string.match(item.text, "^%{,(%d+)%}") then
 					return string.format(
-						" Repeats at most %s times",
-						string.match(item.text, "^,(%d+)$")
+						" Repeats at most %s times(%s)",
+						string.match(item.text, "^%{,(%d+)%}"),
+						is_lazy and "Lazy" or "Greedy"
 					);
 				else
 					return string.format(
-						" Repeats between %s & %s times",
-						string.match(item.text, "^(%d+),"),
-						string.match(item.text, "^%d+,(%d+)$")
+						" Repeats between %s & %s times(%s)",
+						string.match(item.text, "^%{(%d+),%d+%}"),
+						string.match(item.text, "^%{%d+,(%d+)%}")
 					);
 				end
 			end,
@@ -383,7 +387,14 @@ spec.default = {
 		},
 
 		quantifier_optional = {
-			text = " Repeats zero or one time",
+			text = function (_, item)
+				---|fS
+
+				local is_lazy = string.match(item.text, "%?%?$") ~= nil;
+				return string.format(" Matches zero or one time(%s)", is_lazy and "Lazy" or "Greedy");
+
+				---|fE
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
@@ -391,7 +402,14 @@ spec.default = {
 		},
 
 		quantifier_plus = {
-			text = " Repeats one or more times",
+			text = function (_, item)
+				---|fS
+
+				local is_lazy = string.match(item.text, "%?$") ~= nil;
+				return string.format(" Repeats one or more times(%s)", is_lazy and "Lazy" or "Greedy");
+
+				---|fE
+			end,
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
@@ -399,7 +417,22 @@ spec.default = {
 		},
 
 		quantifier_star = {
-			text = " Repeats zero or more times",
+			text = function (_, item)
+				---|fS
+
+				local is_lazy = string.match(item.text, "%?$") ~= nil;
+				return string.format(" Repeats zero or more times(%s)", is_lazy and "Lazy" or "Greedy");
+
+				---|fE
+			end,
+			show_tip = on_current,
+
+			tip_hl = "PatternsPalette7Bg",
+			hl = "PatternsPalette7"
+		},
+
+		lazy = {
+			text = "󰒲 Non-greedy",
 			show_tip = on_current,
 
 			tip_hl = "PatternsPalette7Bg",
