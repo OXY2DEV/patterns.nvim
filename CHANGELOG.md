@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/OXY2DEV/patterns.nvim/compare/v2.0.0...v2.1.0) (2025-04-20)
+
+
+### Features
+
+* **regex:** Added aupport for lazy(non-greedy) version of quantifiers ([6783907](https://github.com/OXY2DEV/patterns.nvim/commit/6783907288b1cd51100615e592c8264a5231abad)), closes [#7](https://github.com/OXY2DEV/patterns.nvim/issues/7)
+
 ## [2.0.0](https://github.com/OXY2DEV/patterns.nvim/compare/v1.0.0...v2.0.0) (2025-02-20)
 
 
