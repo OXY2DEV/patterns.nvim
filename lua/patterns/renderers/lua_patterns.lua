@@ -27,7 +27,7 @@ lua_patterns.tips = {
 			"",
 			"Escaping is typically done to match magic characters(e.g. ^, $) literally."
 		};
-		local char = string.match(item.text, "^%%(.)$");
+		local char = string.match(item.text, "^%%(.)");
 
 		if string.match(char, "[%.%^%$%+%-%*%?%%%[%]%(%)]") then
 			table.insert(_l, 3, string.format("✔ %s is a magic character.", vim.inspect(char)));
