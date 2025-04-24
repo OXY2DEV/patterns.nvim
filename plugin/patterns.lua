@@ -2,15 +2,13 @@
 vim.treesitter.language.register("lua_patterns", "LuaPatterns");
 vim.treesitter.language.register("regex", "RegexPatterns");
 
-local patterns = require("patterns");
-
 --- Sets up the highlight groups.
 --- Should be called AFTER loading
 --- colorschemes.
-require("patterns.highlights").setup();
-
---- Updates the highlight groups.
-vim.api.nvim_create_autocmd("ColorScheme", {
+vim.api.nvim_create_autocmd({
+	"VimEnter",
+	"ColorScheme"
+}, {
 	callback = function ()
 		local hls = require("patterns.highlights");
 		hls.create(hls.groups);
@@ -19,6 +17,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 --- User command.
 vim.api.nvim_create_user_command("Patterns", function (cmd)
+	local patterns = require("patterns");
+
 	---@type string[]
 	local args = cmd.fargs;
 
