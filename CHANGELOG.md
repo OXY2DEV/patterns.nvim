@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/OXY2DEV/patterns.nvim/compare/v2.1.0...v2.1.1) (2025-04-24)
+
+
+### Bug Fixes
+
+* **lua_patterns:** Fixed an issue with getting description for escaped charcaters ([e700d6c](https://github.com/OXY2DEV/patterns.nvim/commit/e700d6c2b0af402d56e0eaa9467cf487dc9fa87d))
+
 ## [2.1.0](https://github.com/OXY2DEV/patterns.nvim/compare/v2.0.0...v2.1.0) (2025-04-20)
 
 
