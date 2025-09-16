@@ -8,13 +8,18 @@ utils.parser_installed = function (parser_name)
 	local has_ts, parsers = pcall(require, "nvim-treesitter.parsers");
 
 	if has_ts == false then
-		--- `nvim-treesitter` not available.
+		-- `nvim-treesitter` not available.
 		return false;
-	elseif parsers.has_parser(parser_name) == true then
-		--- Parser installed via `nvim-treesitter`.
+	elseif parsers.has_parser and parsers.has_parser(parser_name) == true then
+		-- Parser installed via `nvim-treesitter`.
+		-- NOTE: This only works for `master` branch.
+		return true;
+	elseif parsers[parser_name] then
+		-- Parser installed via `nvim-treesitter`.
+		-- NOTE: This only works for `main` branch.
 		return true;
 	elseif pcall(vim.treesitter.query.get, parser_name, "highlights") == true then
-		--- Parser installed manually.
+		-- Parser installed `manually`.
 		return true;
 	end
 
