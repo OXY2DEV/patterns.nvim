@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.2](https://github.com/OXY2DEV/patterns.nvim/compare/v2.1.1...v2.1.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* Add support for transparent colorscheme ([8d1681f](https://github.com/OXY2DEV/patterns.nvim/commit/8d1681f76fe3323578d3cb079b5e10877c131492))
+* **utils:** Added parser detection logic for `nvim-treesitter:main` ([e713498](https://github.com/OXY2DEV/patterns.nvim/commit/e71349836fa862e73e3d8a4e076e1d14f238947e)), closes [#10](https://github.com/OXY2DEV/patterns.nvim/issues/10)
+
 ## [2.1.1](https://github.com/OXY2DEV/patterns.nvim/compare/v2.1.0...v2.1.1) (2025-04-24)
 
 
